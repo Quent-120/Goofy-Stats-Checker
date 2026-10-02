@@ -54,6 +54,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(lockedchallenges)
         self.tree.add_command(sheepwarskit)
         self.tree.add_command(randomstat)
+        self.tree.add_command(parkours)
 
     async def on_ready(self):
         print(f"Bot logged in as {self.user}.")

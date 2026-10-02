@@ -1700,3 +1700,142 @@ async def randomstat(interaction: discord.Interaction, username: str = None):
     #Error
     except Exception as e:
         await handle_error(interaction, e)
+
+
+# =====================================================================
+# /parkours
+# =====================================================================
+
+@app_commands.command(name="parkours", description="Show player's combined parkour time across all lobbies")
+@app_commands.describe(username="In game name of the player")
+@app_commands.rename(username="player")
+async def parkours(interaction: discord.Interaction, username: str = None):
+    session = interaction.client.session
+    try:
+        #Link
+        username = await is_linked(username, interaction.user.id)
+        if isinstance(username, discord.Embed):
+            await interaction.response.send_message(embed=username)
+        else:
+            #API
+            uuid, name = await get_mojang_api(session, username)
+            data = await get_hypixel_api(session, username, uuid)
+            rank = get_rank(data)
+
+        parkour = data["player"].get("parkourCompletions", {})
+        missing = []
+
+        #Main Lobby
+        main = parkour.get("mainLobby2022", [{}])[0].get("timeTook", 0)
+        if not main:
+            missing.append("Bed Wars")
+
+        #Bed Wars
+        bedwars = parkour.get("BedwarsSpring2023", [{}])[0].get("timeTook", 0)
+        if not bedwars:
+            missing.append("Main Lobby")
+
+        #SkyWars
+        skywars = parkour.get("SkywarsStandard2022", [{}])[0].get("timeTook", 0)
+        if not skywars:
+            missing.append("SkyWars")
+
+        #Murder Mystery
+        murdermystery = parkour.get("MurderMystery", [{}])[0].get("timeTook", 0)
+        if not murdermystery:
+            missing.append("Murder Mystery")
+
+        #Arcade
+        arcade = parkour.get("ArcadeGames2", [{}])[0].get("timeTook", 0)
+        if not arcade:
+            missing.append("Arcade")
+
+        #UHC
+        uhc = parkour.get("uhc", [{}])[0].get("timeTook", 0)
+        if not uhc:
+            missing.append("UHC")
+
+        #Build Battle
+        buildbattle = parkour.get("BuildBattle", [{}])[0].get("timeTook", 0)
+        if not buildbattle:
+            missing.append("Build Battle")
+
+        #Cops and Crims
+        copsandcrims = parkour.get("CopsnCrims2024", [{}])[0].get("timeTook", 0)
+        if not copsandcrims:
+            missing.append("Cops and Crims")
+
+        #Duels
+        duels = parkour.get("Duels", [{}])[0].get("timeTook", 0)
+        if not duels:
+            missing.append("Duels")
+
+        #Mega Walls
+        megawalls = parkour.get("MegaWalls", [{}])[0].get("timeTook", 0)
+        if not megawalls:
+            missing.append("Mega Walls")
+
+        #Blitz SG
+        blitzsg = parkour.get("BlitzLobby", [{}])[0].get("timeTook", 0)
+        if not blitzsg:
+            missing.append("Blitz SG")
+
+        #Smash Heroes
+        smashheroes = parkour.get("SuperSmash", [{}])[0].get("timeTook", 0)
+        if not smashheroes:
+            missing.append("Smash Heroes")
+
+        #TNT Games
+        tntgames = parkour.get("tntLobby2024", [{}])[0].get("timeTook", 0)
+        if not tntgames:
+            missing.append("TNT Games")
+
+        #Warlords
+        warlords = parkour.get("Warlords", [{}])[0].get("timeTook", 0)
+        if not warlords:
+            missing.append("Warlords")
+
+        #Wool Games
+        woolgames = parkour.get("WoolGames", [{}])[0].get("timeTook", 0)
+        if not woolgames:
+            missing.append("Wool Games")
+            
+        #Housing
+        housing = parkour.get("Housing", [{}])[0].get("timeTook", 0)
+        if not housing:
+            missing.append("Housing")
+
+        #Prototype
+        prototype = parkour.get("Prototype2025", [{}])[0].get("timeTook", 0)
+        if not prototype:
+            missing.append("Prototype")
+
+        total = main + bedwars + skywars + murdermystery + arcade + uhc + buildbattle + copsandcrims + duels + megawalls + blitzsg + smashheroes + tntgames + warlords + woolgames + housing + prototype
+
+        m = total // 60000
+        s = (total % 60000) // 1000
+        ms = total % 1000
+
+        description = f"**{name}** completed all the lobby parkours in `{m}min` `{s}s` `{ms}ms`."
+
+        if missing:
+            if total == 0:
+                description = f"**{name}** hasn't completed any parkour."
+                color = discord.Color.red()
+            else:
+                missing = "`, `".join(missing)
+                description += f"\n\n**Warning**: Missing completion for `{missing}`"
+                color = discord.Color.orange()
+        else:
+            color = discord.Color.yellow()
+
+        await interaction.response.send_message(embed=set_embed(
+            f"{rank} {name}'s total parkour time",
+            description,
+            color,
+            uuid
+        ))
+        
+    #Error
+    except Exception as e:
+        await handle_error(interaction, e)

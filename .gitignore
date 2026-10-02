@@ -1,2 +1,4 @@
 .env
 data.json
+findpath.py
+/__pycache__
