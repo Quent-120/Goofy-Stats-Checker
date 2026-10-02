@@ -1,4 +1,4 @@
 .env
 data.json
 findpath.py
-\__pycache__
+__pycache__/
