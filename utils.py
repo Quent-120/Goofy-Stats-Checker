@@ -1,6 +1,7 @@
 import discord
 import aiohttp
 import asyncio
+import traceback
 import json
 import re
 from datetime import datetime, timezone
@@ -150,6 +151,7 @@ async def get_hypixel_api(session, username, uuid):
     async with session.get("https://api.hypixel.net/player", params={"key": HYPIXEL_API_KEY, "uuid": uuid}) as response:
         data = await response.json()
     if response.status != 200:
+        print(f"Error {response.status}\nRatelimit: {response.headers.get("RateLimit-Remaining")}/{response.headers.get("RateLimit-Reset")}", await response.text())
         raise ValueError(f"Error {response.status}. Something went wrong with Hypixel's API.")
     if data["player"] is None:
         raise ValueError(f"`{username}` never logged into Hypixel.")
@@ -199,13 +201,13 @@ def formatted_time(time):
         return time
 
 async def handle_error(interaction, error):
+    traceback.print_exception(error)
     if isinstance(error, ValueError):
         description = str(error)
     elif isinstance(error, aiohttp.ContentTypeError):
         description = "The API returned an invalid response format, expected JSON. Try again later."
     elif isinstance(error, aiohttp.ClientError):
         description = "An error occured while trying to connect to the API. Try again later."
-        print("API link: https://developer.hypixel.net/dashboard/")
     elif isinstance(error, asyncio.TimeoutError):
         description = "The API took too long to respond. Try again later."
     elif isinstance(error, KeyError):

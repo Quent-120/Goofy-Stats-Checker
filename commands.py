@@ -214,7 +214,6 @@ async def aprilfool(interaction: discord.Interaction, year: app_commands.Choice[
                     uuid
                 )
                 year.value = "become rabbit"
-                
 
             elif year.value == "become rabbit":
                 embed=set_embed(
@@ -1141,24 +1140,24 @@ async def murdererchance(interaction: discord.Interaction, username: str = None)
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        increaseyt = data["player"].get("stats", {}).get("MurderMystery", {}).get("packages", [])
+            increaseyt = data["player"].get("stats", {}).get("MurderMystery", {}).get("packages", [])
 
-        if "increase_yt_murderer" in increaseyt:
-            description = f"**{name}** enabled YouTube rank's increased murderer/detective chances."
-            color = discord.Color.green()
-        else:
-            if rank in ["", "[VIP]", "[VIP+]", "[MVP]", "[MVP+]", "[MVP++]", "[MOJANG]"] and "disable_increase_yt" not in increaseyt:
-                description = f"**{name}** hasn't unlocked YouTube rank's increased murderer/detective chances."
+            if "increase_yt_murderer" in increaseyt:
+                description = f"**{name}** enabled YouTube rank's increased murderer/detective chances."
+                color = discord.Color.green()
             else:
-                description = f"**{name}** disabled YouTube rank's increased murderer/detective chances."
-            color = discord.Color.red()
+                if rank in ["", "[VIP]", "[VIP+]", "[MVP]", "[MVP+]", "[MVP++]", "[MOJANG]"] and "disable_increase_yt" not in increaseyt:
+                    description = f"**{name}** hasn't unlocked YouTube rank's increased murderer/detective chances."
+                else:
+                    description = f"**{name}** disabled YouTube rank's increased murderer/detective chances."
+                color = discord.Color.red()
 
-        await interaction.response.send_message(embed=set_embed(
-        f"{rank} {name}'s increased Murder Mystery chances",
-        description, 
-        color,
-        uuid
-        ))
+            await interaction.response.send_message(embed=set_embed(
+            f"{rank} {name}'s increased Murder Mystery chances",
+            description, 
+            color,
+            uuid
+            ))
     
     #Error
     except Exception as e:
@@ -1184,40 +1183,40 @@ async def classicgames(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        legacy = data["player"].get("stats", {}).get("Legacy", {})
+            legacy = data["player"].get("stats", {}).get("Legacy", {})
 
-        tokens = legacy.get("tokens", 0)
-        totaltokens = legacy.get("total_tokens", 0)
-        usedtokens = totaltokens - tokens
-        nexttoken = legacy.get("next_tokens_seconds", 120)
-        if nexttoken >= 60:
-            nexttoken = f"`{nexttoken // 60}min {nexttoken % 60}s`"
-        else:
-            nexttoken = f"`{nexttoken}s`"
-            
-        arenabrawl = legacy.get("arena_tokens", 0)
-        vampirez = legacy.get("vampirez_tokens", 0)
-        tkr = legacy.get("gingerbread_tokens", 0)
-        quake = legacy.get("quakecraft_tokens", 0)
-        walls = legacy.get("walls_tokens", 0)
-        paintball  = legacy.get("paintball_tokens", 0)
+            tokens = legacy.get("tokens", 0)
+            totaltokens = legacy.get("total_tokens", 0)
+            usedtokens = totaltokens - tokens
+            nexttoken = legacy.get("next_tokens_seconds", 120)
+            if nexttoken >= 60:
+                nexttoken = f"`{nexttoken // 60}min {nexttoken % 60}s`"
+            else:
+                nexttoken = f"`{nexttoken}s`"
+                
+            arenabrawl = legacy.get("arena_tokens", 0)
+            vampirez = legacy.get("vampirez_tokens", 0)
+            tkr = legacy.get("gingerbread_tokens", 0)
+            quake = legacy.get("quakecraft_tokens", 0)
+            walls = legacy.get("walls_tokens", 0)
+            paintball  = legacy.get("paintball_tokens", 0)
 
-        rollspeed = legacy.get("speed", "TEN_SECONDS").replace("TEN_", "10").replace("FIVE_", "5").replace("SECONDS", "s")
-        channel = legacy.get("preferredChannel", "ALL")
+            rollspeed = legacy.get("speed", "TEN_SECONDS").replace("TEN_", "10").replace("FIVE_", "5").replace("SECONDS", "s")
+            channel = legacy.get("preferredChannel", "ALL")
 
-        embed=set_embed(
-        f"{rank} {name}'s Classic Games lobby",
-        f"", 
-        discord.Color.dark_green(),
-        uuid
-        )
+            embed=set_embed(
+            f"{rank} {name}'s Classic Games lobby",
+            f"", 
+            discord.Color.dark_green(),
+            uuid
+            )
 
-        embed.add_field(name = "Classic Tokens", value = f"• Available tokens: `{tokens:,}`\n• Used tokens: `{usedtokens:,}`\n• Tokens earned: `{totaltokens:,}`\n• Next token in: {nexttoken}/`2min`", inline = True)
-        embed.add_field(name = "Settings", value = f"• Tokens roll speed: `{rollspeed}`\n• Preferred channel: `{channel}`", inline = True)
-        if totaltokens != 0:
-            embed.add_field(name = "Earned tokens details", value = f"• Arena Brawl: `{arenabrawl:,}` *≈ {round((arenabrawl * 2)/60, 1):,}h*\n• VampireZ: `{vampirez:,}` *≈ {round((vampirez * 2)/60, 1):,}h*\n• Turbo Kart Racers: `{tkr:,}` *≈ {round((tkr * 2)/60, 1):,}h*\n• Quakecraft: `{quake:,}` *≈ {round((quake * 2)/60, 1):,}h*\n• The Walls: `{walls:,}` *≈ {round((walls * 2)/60, 1):,}h*\n• Paintball Warfare: `{paintball:,}` *≈ {round((paintball * 2)/60, 1):,}h*", inline = False)
+            embed.add_field(name = "Classic Tokens", value = f"• Available tokens: `{tokens:,}`\n• Used tokens: `{usedtokens:,}`\n• Tokens earned: `{totaltokens:,}`\n• Next token in: {nexttoken}/`2min`", inline = True)
+            embed.add_field(name = "Settings", value = f"• Tokens roll speed: `{rollspeed}`\n• Preferred channel: `{channel}`", inline = True)
+            if totaltokens != 0:
+                embed.add_field(name = "Earned tokens details", value = f"• Arena Brawl: `{arenabrawl:,}` *≈ {round((arenabrawl * 2)/60, 1):,}h*\n• VampireZ: `{vampirez:,}` *≈ {round((vampirez * 2)/60, 1):,}h*\n• Turbo Kart Racers: `{tkr:,}` *≈ {round((tkr * 2)/60, 1):,}h*\n• Quakecraft: `{quake:,}` *≈ {round((quake * 2)/60, 1):,}h*\n• The Walls: `{walls:,}` *≈ {round((walls * 2)/60, 1):,}h*\n• Paintball Warfare: `{paintball:,}` *≈ {round((paintball * 2)/60, 1):,}h*", inline = False)
 
-        await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed)
 
     #Error
     except Exception as e:
@@ -1243,14 +1242,14 @@ async def poop(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
     
-        poops = data["player"].get("stats", {}).get("Arcade", {}).get("poop_collected_farm_hunt", 0)
+            poops = data["player"].get("stats", {}).get("Arcade", {}).get("poop_collected_farm_hunt", 0)
 
-        await interaction.response.send_message(embed=set_embed(
-        f"{rank} {name}'s Farm Hunt collected poops",
-        f"**{name}** has collected `{poops:,}` poops!", 
-        discord.Color(0x693E13),
-        uuid
-        ))
+            await interaction.response.send_message(embed=set_embed(
+            f"{rank} {name}'s Farm Hunt collected poops",
+            f"**{name}** has collected `{poops:,}` poops!", 
+            discord.Color(0x693E13),
+            uuid
+            ))
 
     #Error
     except Exception as e:
@@ -1276,15 +1275,15 @@ async def language(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
     
-        language = data["player"].get("userLanguage", "ENGLISH").replace("PIRATE", "PIRATE_SPEAK").replace("PORTUGUESE_BR","BRAZILIAN_PORTUGUESE").replace("PORTUGUESE_PT", "PORTUGUESE").replace("_", " ").capitalize()
-        autodetect = data["player"].get("autoDetectLanguage", "false").title()
+            language = data["player"].get("userLanguage", "ENGLISH").replace("PIRATE", "PIRATE_SPEAK").replace("PORTUGUESE_BR","BRAZILIAN_PORTUGUESE").replace("PORTUGUESE_PT", "PORTUGUESE").replace("_", " ").capitalize()
+            autodetect = data["player"].get("autoDetectLanguage", "false").title()
 
-        await interaction.response.send_message(embed=set_embed(
-        f"{rank} {name}'s Hypixel language",
-        f"**{name}** selected `{language}` as their Hypixel language.\n‣ Auto detect language: `{autodetect}`", 
-        discord.Color.og_blurple(),
-        uuid
-        ))
+            await interaction.response.send_message(embed=set_embed(
+            f"{rank} {name}'s Hypixel language",
+            f"**{name}** selected `{language}` as their Hypixel language.\n‣ Auto detect language: `{autodetect}`", 
+            discord.Color.og_blurple(),
+            uuid
+            ))
 
     #Error
     except Exception as e:
@@ -1310,33 +1309,33 @@ async def pitallegiance(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        allegiance = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_allegiance", "None")
-        points = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_points", 0)
-        lastplayed = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_allegiance_time", 0) // 1000
-        spawn = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_spawn_in_base", "false")
+            allegiance = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_allegiance", "None")
+            points = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_points", 0)
+            lastplayed = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_allegiance_time", 0) // 1000
+            spawn = data["player"].get("stats", {}).get("Pit", {}).get("profile", {}).get("genesis_spawn_in_base", "false")
 
-        if allegiance == "DEMON":
-            color = discord.Color.dark_red()
-        elif allegiance == "ANGEL":
-            color = discord.Color(0xFFFFFF)
-        else:
-            color = discord.Color.light_grey()
+            if allegiance == "DEMON":
+                color = discord.Color.dark_red()
+            elif allegiance == "ANGEL":
+                color = discord.Color(0xFFFFFF)
+            else:
+                color = discord.Color.light_grey()
 
-        lastplayed = int(time.time()) - lastplayed
-        days = lastplayed // 86400
-        hours = (lastplayed % 86400) // 3600
+            lastplayed = int(time.time()) - lastplayed
+            days = lastplayed // 86400
+            hours = (lastplayed % 86400) // 3600
 
-        description = f"• Chosen allegiance: `{allegiance}`\n• Points during last played Genesis rotation: `{points:,}`"
-        if lastplayed != 0:
-            description += f"\n• Last played: `{days:,}d {hours}h ago`"
-        description += f"\n• Faction spawn: `{spawn}`"
+            description = f"• Chosen allegiance: `{allegiance}`\n• Points during last played Genesis rotation: `{points:,}`"
+            if lastplayed != 0:
+                description += f"\n• Last played: `{days:,}d {hours}h ago`"
+            description += f"\n• Faction spawn: `{spawn}`"
 
-        await interaction.response.send_message(embed=set_embed(
-        f"{rank} {name}'s Genesis alliegance stats",
-        description, 
-        color,
-        uuid
-        ))
+            await interaction.response.send_message(embed=set_embed(
+            f"{rank} {name}'s Genesis alliegance stats",
+            description, 
+            color,
+            uuid
+            ))
      
     #Error
     except Exception as e:
@@ -1362,41 +1361,41 @@ async def smashheroesboosters(interaction: discord.Interaction, username: str = 
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        smashheroes = data["player"].get("stats", {}).get("SuperSmash", {})
+            smashheroes = data["player"].get("stats", {}).get("SuperSmash", {})
 
-        booster10 = smashheroes.get("expBooster_purchases_10_plays", 0)
-        booster30 = smashheroes.get("expBooster_purchases_30_plays", 0)
-        booster50 = smashheroes.get("expBooster_purchases_50_plays", 0)
-        booster100 = smashheroes.get("expBooster_purchases_100_plays", 0)
+            booster10 = smashheroes.get("expBooster_purchases_10_plays", 0)
+            booster30 = smashheroes.get("expBooster_purchases_30_plays", 0)
+            booster50 = smashheroes.get("expBooster_purchases_50_plays", 0)
+            booster100 = smashheroes.get("expBooster_purchases_100_plays", 0)
 
-        activebooster = smashheroes.get("hero_level_booster_active", "None")
-        if activebooster == "None":
-            color = discord.Color.light_grey()
-        else:
-            type = activebooster.get("value", 0)
-            remaining = type - activebooster.get("plays", 0)
-            if type == 10:
-                color = discord.Color.green()
-            elif type == 30:
-                color = discord.Color.yellow()
-            elif type == 50:
-                color = discord.Color.dark_gold()
+            activebooster = smashheroes.get("hero_level_booster_active", "None")
+            if activebooster == "None":
+                color = discord.Color.light_grey()
             else:
-                color = discord.Color.red()
+                type = activebooster.get("value", 0)
+                remaining = type - activebooster.get("plays", 0)
+                if type == 10:
+                    color = discord.Color.green()
+                elif type == 30:
+                    color = discord.Color.yellow()
+                elif type == 50:
+                    color = discord.Color.dark_gold()
+                else:
+                    color = discord.Color.red()
 
-        embed=set_embed(
-            f"{rank} {name}'s Smash Heroes EXP boosters",
-            "", 
-            color,
-            uuid
-        )
-        embed.add_field(name = "Purchased EXP Boosters", value = f"• 10 Games booster: `{booster10:,}`\n• 30 Games booster: `{booster30:,}`\n• 50 Games booster: `{booster50:,}`\n• 100 Games booster: `{booster100:,}`", inline = False)
-        if activebooster != "None":
-            embed.add_field(name = "Active EXP Booster", value = f"→ {type:,} games booster: `{remaining:,}/{type:,}` games remaining", inline = False)
-        else:
-            embed.add_field(name = "Active EXP Booster", value = f"**{name}** curently doesn't have an active EXP booster.", inline = False)
+            embed=set_embed(
+                f"{rank} {name}'s Smash Heroes EXP boosters",
+                "", 
+                color,
+                uuid
+            )
+            embed.add_field(name = "Purchased EXP Boosters", value = f"• 10 Games booster: `{booster10:,}`\n• 30 Games booster: `{booster30:,}`\n• 50 Games booster: `{booster50:,}`\n• 100 Games booster: `{booster100:,}`", inline = False)
+            if activebooster != "None":
+                embed.add_field(name = "Active EXP Booster", value = f"→ {type:,} games booster: `{remaining:,}/{type:,}` games remaining", inline = False)
+            else:
+                embed.add_field(name = "Active EXP Booster", value = f"**{name}** curently doesn't have an active EXP booster.", inline = False)
 
-        await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed)
      
     #Error
     except Exception as e:
@@ -1422,93 +1421,93 @@ async def bwminion(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        bw_level = get_bedwars_level(data)
-        minion = data["player"].get("stats", {}).get("Bedwars", {}).get("slumber", {}).get("minion", {})
+            bw_level = get_bedwars_level(data)
+            minion = data["player"].get("stats", {}).get("Bedwars", {}).get("slumber", {}).get("minion", {})
 
-        if minion:
+            if minion:
 
-            font = ImageFont.truetype("Minecraft.ttf", 36)
+                font = ImageFont.truetype("Minecraft.ttf", 36)
 
-            # Minion stats
-            enderdustcollected = minion.get("ender_dust_collected", 0)
-            ticketscollected = minion.get("tickets_collected", 0)
-            
-            img = Image.open("images/bwminion.png")
-            draw = ImageDraw.Draw(img)
-
-            # Text shadow
-            draw.text((351, 374), f"{enderdustcollected:,}", font=font, fill=(21, 63, 63))
-            draw.text((288, 404), f"{ticketscollected:,}", font=font, fill=(21, 63, 63))
-            # Text
-            draw.text((348, 371), f"{enderdustcollected:,}", font=font, fill=(85, 255, 255))
-            draw.text((285, 401), f"{ticketscollected:,}", font=font, fill=(85, 255, 255))
-            
-            buffer = io.BytesIO()
-            img.save(buffer, format="PNG")
-            buffer.seek(0)
-            file1 = discord.File(fp=buffer, filename="Ender Dust Minion X.png")
-
-
-            # Minion Inventory
-            enderdust = minion.get("ender_dust", 0)
-            tickets = minion.get("tickets", 0)
-            if tickets <= 1:
-                tickets = ""
-
-            img = Image.open("images/bwminioninventory.png")
-            draw = ImageDraw.Draw(img)
-
-            img_enderdust = Image.open("images/enderdust.png")
-            img_ticket = Image.open("images/ticket.png")
-
-            if 0 < enderdust <= 64:
-                img.paste(img_enderdust, (183, 159))
-                if minion.get("tickets", 0) > 0:
-                    img.paste(img_ticket, (237, 159))
+                # Minion stats
+                enderdustcollected = minion.get("ender_dust_collected", 0)
+                ticketscollected = minion.get("tickets_collected", 0)
+                
+                img = Image.open("images/bwminion.png")
+                draw = ImageDraw.Draw(img)
 
                 # Text shadow
-                draw.text((237, 183), f"{enderdust}", font=font, fill=(63, 63, 63), anchor="ra")
-                draw.text((291, 183), f"{tickets}", font=font, fill=(63, 63, 63), anchor="ra") # un slot = 54px
+                draw.text((351, 374), f"{enderdustcollected:,}", font=font, fill=(21, 63, 63))
+                draw.text((288, 404), f"{ticketscollected:,}", font=font, fill=(21, 63, 63))
                 # Text
-                draw.text((234, 180), f"{enderdust}", font=font, fill=(255, 255, 255), anchor="ra")
-                draw.text((288, 180), f"{tickets}", font=font, fill=(255, 255, 255), anchor="ra")
+                draw.text((348, 371), f"{enderdustcollected:,}", font=font, fill=(85, 255, 255))
+                draw.text((285, 401), f"{ticketscollected:,}", font=font, fill=(85, 255, 255))
+                
+                buffer = io.BytesIO()
+                img.save(buffer, format="PNG")
+                buffer.seek(0)
+                file1 = discord.File(fp=buffer, filename="Ender Dust Minion X.png")
 
-            elif enderdust > 64:
-                if enderdust > 128:
-                    enderdust = 64
-                else:
-                    enderdust -= 64
 
-                img.paste(img_enderdust, (183, 159))
-                img.paste(img_enderdust, (237, 159))
-                img.paste(img_ticket, (291, 159))
+                # Minion Inventory
+                enderdust = minion.get("ender_dust", 0)
+                tickets = minion.get("tickets", 0)
+                if tickets <= 1:
+                    tickets = ""
 
-                # Text shadow
-                draw.text((237, 183), "64", font=font, fill=(63, 63, 63), anchor="ra")
-                draw.text((291, 183), f"{enderdust}", font=font, fill=(63, 63, 63), anchor="ra")
-                draw.text((345, 183), f"{tickets}", font=font, fill=(63, 63, 63), anchor="ra")
-                # Text
-                draw.text((234, 180), "64", font=font, fill=(255, 255, 255), anchor="ra")
-                draw.text((288, 180), f"{enderdust}", font=font, fill=(255, 255, 255), anchor="ra")
-                draw.text((342, 180), f"{tickets}", font=font, fill=(255, 255, 255), anchor="ra")
-                      
-            buffer = io.BytesIO()
-            img.save(buffer, format="PNG")
-            buffer.seek(0)
-            file2 = discord.File(fp=buffer, filename="Ender Dust Minion X Inventory.png")
+                img = Image.open("images/bwminioninventory.png")
+                draw = ImageDraw.Draw(img)
 
-            await interaction.response.send_message(
-                content=f"{bw_level} {rank} {name}'s Ender Dust Minion stats",
-                files=[file1, file2]
-            )
+                img_enderdust = Image.open("images/enderdust.png")
+                img_ticket = Image.open("images/ticket.png")
 
-        else:
-            await interaction.response.send_message(embed=set_embed(
-                f"{rank} {name}'s Ender Dust Minion stats",
-                f"{bw_level} {name} hasn't unlocked the Bed Wars minion from the Slumber Hotel.",
-                discord.Color.red(),
-                uuid
-            ))
+                if 0 < enderdust <= 64:
+                    img.paste(img_enderdust, (183, 159))
+                    if minion.get("tickets", 0) > 0:
+                        img.paste(img_ticket, (237, 159))
+
+                    # Text shadow
+                    draw.text((237, 183), f"{enderdust}", font=font, fill=(63, 63, 63), anchor="ra")
+                    draw.text((291, 183), f"{tickets}", font=font, fill=(63, 63, 63), anchor="ra") # un slot = 54px
+                    # Text
+                    draw.text((234, 180), f"{enderdust}", font=font, fill=(255, 255, 255), anchor="ra")
+                    draw.text((288, 180), f"{tickets}", font=font, fill=(255, 255, 255), anchor="ra")
+
+                elif enderdust > 64:
+                    if enderdust > 128:
+                        enderdust = 64
+                    else:
+                        enderdust -= 64
+
+                    img.paste(img_enderdust, (183, 159))
+                    img.paste(img_enderdust, (237, 159))
+                    img.paste(img_ticket, (291, 159))
+
+                    # Text shadow
+                    draw.text((237, 183), "64", font=font, fill=(63, 63, 63), anchor="ra")
+                    draw.text((291, 183), f"{enderdust}", font=font, fill=(63, 63, 63), anchor="ra")
+                    draw.text((345, 183), f"{tickets}", font=font, fill=(63, 63, 63), anchor="ra")
+                    # Text
+                    draw.text((234, 180), "64", font=font, fill=(255, 255, 255), anchor="ra")
+                    draw.text((288, 180), f"{enderdust}", font=font, fill=(255, 255, 255), anchor="ra")
+                    draw.text((342, 180), f"{tickets}", font=font, fill=(255, 255, 255), anchor="ra")
+                        
+                buffer = io.BytesIO()
+                img.save(buffer, format="PNG")
+                buffer.seek(0)
+                file2 = discord.File(fp=buffer, filename="Ender Dust Minion X Inventory.png")
+
+                await interaction.response.send_message(
+                    content=f"{bw_level} {rank} {name}'s Ender Dust Minion stats",
+                    files=[file1, file2]
+                )
+
+            else:
+                await interaction.response.send_message(embed=set_embed(
+                    f"{rank} {name}'s Ender Dust Minion stats",
+                    f"{bw_level} {name} hasn't unlocked the Bed Wars minion from the Slumber Hotel.",
+                    discord.Color.red(),
+                    uuid
+                ))
 
     #Error
     except Exception as e:
@@ -1534,25 +1533,25 @@ async def smashheroeslimit(interaction: discord.Interaction, username: str = Non
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        level = data["player"].get("stats", {}).get("SuperSmash", {}).get("smashLevel", 0)
+            level = data["player"].get("stats", {}).get("SuperSmash", {}).get("smashLevel", 0)
 
-        games = data["player"].get("stats", {}).get("SuperSmash", {}).get("ONE_V_JUAN_gamesDay", 0)
-        firstgame = data["player"].get("stats", {}).get("SuperSmash", {}).get("ONE_V_JUAN_firstGame", 0)//1000
+            games = data["player"].get("stats", {}).get("SuperSmash", {}).get("ONE_V_JUAN_gamesDay", 0)
+            firstgame = data["player"].get("stats", {}).get("SuperSmash", {}).get("ONE_V_JUAN_firstGame", 0)//1000
 
-        if int(time.time()) - firstgame > 86400:
-            games = 0
+            if int(time.time()) - firstgame > 86400:
+                games = 0
 
-        if games < 50:
-            color = discord.Color.green()
-        else:
-            color = discord.Color.red()
+            if games < 50:
+                color = discord.Color.green()
+            else:
+                color = discord.Color.red()
 
-        await interaction.response.send_message(embed=set_embed(
-            f"{rank} {name}'s Smash Heroes games limit",
-            f"[{level:,} ✶] {name} has played `{games:,}/50` games of 1v1 today.",
-            color,
-            uuid
-        ))
+            await interaction.response.send_message(embed=set_embed(
+                f"{rank} {name}'s Smash Heroes games limit",
+                f"[{level:,} ✶] {name} has played `{games:,}/50` games of 1v1 today.",
+                color,
+                uuid
+            ))
 
     #Error
     except Exception as e:
@@ -1578,42 +1577,42 @@ async def lockedchallenges(interaction: discord.Interaction, username: str = Non
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        bedwars = data["player"].get("stats", {}).get("Bedwars", {})
-        packages = bedwars.get("packages", [])
+            bedwars = data["player"].get("stats", {}).get("Bedwars", {})
+            packages = bedwars.get("packages", [])
 
-        lockedchallenges = []
-        for elt in bedwars:
-            if elt.startswith("bw_challenge_") and elt+"_collected" not in packages:
-                lockedchallenges.append(elt)
+            lockedchallenges = []
+            for elt in bedwars:
+                if elt.startswith("bw_challenge_") and elt+"_collected" not in packages:
+                    lockedchallenges.append(elt)
 
-        if lockedchallenges == []:
-            bw_level = get_bedwars_level(data)
-            embed = set_embed(
-                f"{rank} {name}'s locked Bed Wars challenges completions",
-                f"{bw_level} {name} doesn't have any locked challenge completion.",
-                discord.Color.red(),
-                uuid
-            )
-        else:
-            embed=set_embed(
-                f"{rank} {name}'s locked challenges completions",
-                "",
-                discord.Color.purple(),
-                uuid
-            )
+            if lockedchallenges == []:
+                bw_level = get_bedwars_level(data)
+                embed = set_embed(
+                    f"{rank} {name}'s locked Bed Wars challenges completions",
+                    f"{bw_level} {name} doesn't have any locked challenge completion.",
+                    discord.Color.red(),
+                    uuid
+                )
+            else:
+                embed=set_embed(
+                    f"{rank} {name}'s locked challenges completions",
+                    "",
+                    discord.Color.purple(),
+                    uuid
+                )
 
-            for elt in lockedchallenges:
-                title = BEDWARSCHALLENGES[elt]
-                wins = bedwars[elt]
+                for elt in lockedchallenges:
+                    title = BEDWARSCHALLENGES[elt]
+                    wins = bedwars[elt]
 
-                besttime = bedwars.get("challenges", {}).get(elt+"_best_time")//1000
-                h = besttime // 3600
-                m = (besttime % 3600) // 60
-                s = besttime % 60
+                    besttime = bedwars.get("challenges", {}).get(elt+"_best_time")//1000
+                    h = besttime // 3600
+                    m = (besttime % 3600) // 60
+                    s = besttime % 60
 
-                embed.add_field(name=f"{title}", value=f"Wins with Challenge: `{wins:,}`\nFastest Completion: `{h:02}:{m:02}:{s:02}`", inline = True)
+                    embed.add_field(name=f"{title}", value=f"Wins with Challenge: `{wins:,}`\nFastest Completion: `{h:02}:{m:02}:{s:02}`", inline = True)
 
-        await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed)
 
     #Error
     except Exception as e:
@@ -1639,23 +1638,23 @@ async def sheepwarskit(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        kit = data["player"].get("stats", {}).get("WoolGames", {}).get("sheep_wars", {}).get("default_kit", "BUILDER")
+            kit = data["player"].get("stats", {}).get("WoolGames", {}).get("sheep_wars", {}).get("default_kit", "BUILDER")
 
-        KITCOLORS = {
-            "BUILDER": discord.Color.green(),
-            "RAIDER": discord.Color.dark_gold(),
-            "BOWMAN": discord.Color.blue(),
-            "MUNITIONS": discord.Color.purple(),
-            "TANK": discord.Color.yellow(),
-            "HEAVY": discord.Color.dark_purple()
-        }
+            KITCOLORS = {
+                "BUILDER": discord.Color.green(),
+                "RAIDER": discord.Color.dark_gold(),
+                "BOWMAN": discord.Color.blue(),
+                "MUNITIONS": discord.Color.purple(),
+                "TANK": discord.Color.yellow(),
+                "HEAVY": discord.Color.dark_purple()
+            }
 
-        await interaction.response.send_message(embed=set_embed(
-            f"{rank} {name}'s selected Sheep Wars kit",
-            f"**{name}** has selected the `{kit}` kit as their default kit.",
-            KITCOLORS["kit"],
-            uuid
-        ))
+            await interaction.response.send_message(embed=set_embed(
+                f"{rank} {name}'s selected Sheep Wars kit",
+                f"**{name}** has selected the `{kit}` kit as their default kit.",
+                KITCOLORS["kit"],
+                uuid
+            ))
 
     #Error
     except Exception as e:
@@ -1681,24 +1680,24 @@ async def randomstat(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        value = data["player"]
-        while isinstance(value , dict):
-            rdm = random.randint(0, len(value)-1)
-            key, value = list(value.items())[rdm]
-            if isinstance(value, list):
-                value = value[random.randint(0, len(value)-1)]
-        if isinstance(value, str):
-            value = clean_text(value)
-        else:
-            value = f"{value:,}"
-        key = clean_text(key)
+            value = data["player"]
+            while isinstance(value , dict):
+                rdm = random.randint(0, len(value)-1)
+                key, value = list(value.items())[rdm]
+                if isinstance(value, list):
+                    value = value[random.randint(0, len(value)-1)]
+            if isinstance(value, str):
+                value = clean_text(value)
+            else:
+                value = f"{value:,}"
+            key = clean_text(key)
 
-        await interaction.response.send_message(embed=set_embed(
-            f"{rank} {name}'s {key}",
-            f"**{key}**: `{value}`\n \n*Note: text formating may be messy due to the API being inconsistent.*",
-            discord.Color.random(),
-            uuid
-        ))
+            await interaction.response.send_message(embed=set_embed(
+                f"{rank} {name}'s {key}",
+                f"**{key}**: `{value}`\n \n*Note: text formating may be messy due to the API being inconsistent.*",
+                discord.Color.random(),
+                uuid
+            ))
         
     #Error
     except Exception as e:
@@ -1709,6 +1708,59 @@ async def randomstat(interaction: discord.Interaction, username: str = None):
 # /parkours
 # =====================================================================
 
+#Button
+class perfectview(discord.ui.View):
+    def __init__(self, uuid, name, rank, color, parkour, parkourCompletions, checkpointBests, AVAILABLE_PARKOURS):
+        super().__init__(timeout=60)
+        self.uuid = uuid
+        self.name = name
+        self.rank = rank
+        self.color = color
+        self.parkour = parkour
+        self.parkourCompletions = parkourCompletions
+        self.checkpointBests = checkpointBests
+        self.AVAILABLE_PARKOURS = AVAILABLE_PARKOURS
+
+    @discord.ui.button(label = "Show perfect checkpoints",style=discord.ButtonStyle.primary)
+    async def perfectcheckpoints(self, interaction: discord.Interaction, button: discord.ui.Button):
+        button.disabled = True
+
+        parkour = {}
+        for lobby in self.AVAILABLE_PARKOURS:
+                parkour.update({
+                    self.AVAILABLE_PARKOURS[lobby]: {
+                        "Best Time": self.parkourCompletions.get(lobby, [{}])[0].get("timeTook", "`N/A`"),
+                        "Checkpoints": self.checkpointBests.get(lobby, {})
+                    }
+                })
+
+        description = f"### **{self.name}**'s perfect checkpoints time\n\n"
+        perfect = []
+        for lobby in parkour:
+            found = False
+            for cp in parkour[lobby]["Checkpoints"]:
+                if parkour[lobby]["Checkpoints"][cp] <= 3005:
+                    perfect.append(f"**{lobby} #{int(cp)+1}**: {formatted_time(parkour[lobby]["Checkpoints"][cp])}")
+                    found = True
+            if found:
+                perfect.append("")
+
+        if perfect:
+            description += "\n".join(perfect)
+        else:
+            description = f"**{self.name}** never got a checkpoint time of 3s or below."
+            self.color = discord.Color.red()
+
+        newembed=set_embed(
+            f"{self.rank} {self.name}'s lobby parkour time",
+            description,
+            self.color,
+            self.uuid
+        )
+
+        await interaction.response.edit_message(embed=newembed, view=self)
+
+#Command
 @app_commands.command(name="parkours", description="Show player's combined parkour time across all lobbies")
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
@@ -1725,79 +1777,84 @@ async def parkours(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-        AVAILABLE_PARKOURS = {
-            "Housing": "Housing",
-            "ArcadeGames2": "Arcade",
-            "CopsnCrims2024": "Cops and Crims",
-            "SkywarsStandard2022": "SkyWars",
-            "BedwarsSpring2023": "Bed Wars",
-            "SuperSmash": "Smash Heroes",
-            "tntLobby2024": "TNT Games",
-            "WoolGames": "Wool Games",
-            "mainLobby2022": "Main Lobby",
-            "MegaWalls": "Mega Walls",
-            "Duels": "Duels",
-            "BuildBattle": "Build Battle",
-            "uhc": "UHC",
-            "MurderMystery": "Murder Mystery",
-            "Prototype2025": "Prototype",
-            "Warlords": "Warlords",
-            "BlitzLobby": "Blitz SG"
-        }
+            AVAILABLE_PARKOURS = {
+                "Housing": "Housing",
+                "ArcadeGames2": "Arcade",
+                "CopsnCrims2024": "Cops and Crims",
+                "SkywarsStandard2022": "SkyWars",
+                "BedwarsSpring2023": "Bed Wars",
+                "SuperSmash": "Smash Heroes",
+                "tntLobby2024": "TNT Games",
+                "WoolGames": "Wool Games",
+                "mainLobby2022": "Main Lobby",
+                "MegaWalls": "Mega Walls",
+                "Duels": "Duels",
+                "BuildBattle": "Build Battle",
+                "uhc": "UHC",
+                "MurderMystery": "Murder Mystery",
+                "Prototype2025": "Prototype",
+                "Warlords": "Warlords",
+                "BlitzLobby": "Blitz SG"
+            }
 
-        parkourCompletions = data["player"].get("parkourCompletions", {})
-        checkpointBests = data["player"].get("parkourCheckpointBests", {})
+            parkourCompletions = data["player"].get("parkourCompletions", {})
+            checkpointBests = data["player"].get("parkourCheckpointBests", {})
 
-        parkour = {}
-        for lobby in AVAILABLE_PARKOURS:
-                parkour.update({
-                    AVAILABLE_PARKOURS[lobby]: {
-                        "Best Time": parkourCompletions.get(lobby, [{}])[0].get("timeTook", "`N/A`"),
-                        "Checkpoints": checkpointBests.get(lobby, {})
-                    }
-                })
+            parkour = {}
+            for lobby in AVAILABLE_PARKOURS:
+                    parkour.update({
+                        AVAILABLE_PARKOURS[lobby]: {
+                            "Best Time": parkourCompletions.get(lobby, [{}])[0].get("timeTook", "`N/A`"),
+                            "Checkpoints": checkpointBests.get(lobby, {})
+                        }
+                    })
 
-        total = 0
-        missing = []
-        for lobby in parkour:
-            if parkour[lobby]["Best Time"] == "`N/A`":
-                missing.append(lobby)
+            total = 0
+            missing = []
+            for lobby in parkour:
+                if parkour[lobby]["Best Time"] == "`N/A`":
+                    missing.append(lobby)
+                else:
+                    total += parkour[lobby]["Best Time"]
+
+
+            if len(missing) == len(parkour):
+                description = f"**{name}** hasn't completed any parkour."
+                color = discord.Color.red()
+            elif missing:
+                description = f"### **{name}** completed `{len(parkour)-len(missing)}/{len(parkour)}` parkour(s) in {formatted_time(total)}."
+                color = discord.Color.yellow()
             else:
-                total += parkour[lobby]["Best Time"]
+                description = f"### **{name}** completed all the lobby parkours in {formatted_time(total)}."
+                color = discord.Color.orange()
 
+            embed=set_embed(
+                f"{rank} {name}'s lobby parkour time",
+                description,
+                color,
+                uuid
+            )
 
-        if len(missing) == len(parkour):
-            description = f"**{name}** hasn't completed any parkour."
-            color = discord.Color.red()
-        elif missing:
-            description = f"### **{name}** completed `{len(parkour)-len(missing)}/{len(parkour)}` parkour(s) in {formatted_time(total)}."
-            color = discord.Color.yellow()
-        else:
-            description = f"### **{name}** completed all the lobby parkours in {formatted_time(total)}."
-            color = discord.Color.orange()
+            for lobby in parkour:
+                checkpoints = ""
+                sumofbest = 0
+                if parkour[lobby]["Checkpoints"]:
+                    for cp in parkour[lobby]["Checkpoints"]:
+                            checkpoints += f"**#{int(cp)+1}** `{formatted_time(parkour[lobby]["Checkpoints"][cp]).replace("`", "")}`\n\u200b"
+                            sumofbest += parkour[lobby]["Checkpoints"][cp]
+                else:
+                    checkpoints = "\u200b `N/A`"
+                if parkour[lobby]["Best Time"] == "`N/A`":
+                    embed.add_field(name=lobby, value=f"▸ {formatted_time(parkour[lobby]["Best Time"])}\n__Best Checkpoints__\n{checkpoints}", inline = True)
+                else:
+                    embed.add_field(name=lobby, value=f"▸ {formatted_time(parkour[lobby]["Best Time"])}\n__Sum of Best__\n▸ {formatted_time(sumofbest)}\n__Best Checkpoints__\n{checkpoints}", inline = True)
+            embed.add_field(name="", value="", inline=True)
+            
+            if missing and len(missing) != len(parkour):
+                missing = "`, `".join(missing)
+                embed.add_field(name=f"\n\n**Warning**: Missing completion for `{missing}`", value="", inline=False)
 
-        embed=set_embed(
-            f"{rank} {name}'s lobby parkour time",
-            description,
-            color,
-            uuid
-        )
-
-        for lobby in parkour:
-            checkpoints = ""
-            if parkour[lobby]["Checkpoints"]:
-                for cp in parkour[lobby]["Checkpoints"]:
-                        checkpoints += f"**#{int(cp)+1}** `{formatted_time(parkour[lobby]["Checkpoints"][cp]).replace("`", "")}`\n\u200b"
-            else:
-                checkpoints = "\u200b `N/A`\n\u200b"
-            embed.add_field(name=lobby, value=f"▸ {formatted_time(parkour[lobby]["Best Time"])}\n__Best Checkpoints__\n{checkpoints}", inline = True)
-        embed.add_field(name="", value="", inline=True)
-        
-        if missing and len(missing) != len(parkour):
-            missing = "`, `".join(missing)
-            embed.add_field(name=f"\n\n**Warning**: Missing completion for `{missing}`", value="", inline=False)
-
-        await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, view=perfectview(uuid, name, rank, color, parkour, parkourCompletions, checkpointBests, AVAILABLE_PARKOURS))
         
     #Error
     except Exception as e:
