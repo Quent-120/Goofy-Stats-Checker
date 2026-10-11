@@ -181,6 +181,23 @@ def clean_text(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()
     return text.title()
 
+def formatted_time(time):
+    if isinstance(time, int):
+        h = time // 3600000
+        m = (time % 3600000) // 60000
+        s = (time % 60000) // 1000
+        ms = time % 1000
+        if h:
+            return f"`{h:,}h` `{m}min` `{s}s`"
+        elif m:
+            return f"`{m}min` `{s}s` `{ms}ms`"
+        elif s:
+            return f"`{s}s` `{ms}ms`"
+        else:
+            return f"`{ms}ms`"
+    else:
+        return time
+
 async def handle_error(interaction, error):
     if isinstance(error, ValueError):
         description = str(error)

@@ -26,7 +26,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(quickbuyprivacy)
         self.tree.add_command(sledtype)
         self.tree.add_command(rankcolor)
-        self.tree.add_command(gamblergeorge)
+#       self.tree.add_command(gamblergeorge) outdated, will update soon
         self.tree.add_command(housingadvanced)
         self.tree.add_command(paidsouls)
         self.tree.add_command(ultimate)
