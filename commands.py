@@ -22,22 +22,32 @@ async def link(interaction: discord.Interaction, username: str):
 
         #API
         uuid, name = await get_mojang_api(session, username)
-        await get_hypixel_api(session, name, uuid)
+        data = await get_hypixel_api(session, username, uuid)
 
-        with open("data.json", "r", encoding="utf-8") as f:
-            links = json.load(f)
-        
-        links[str(interaction.user.id)] = {"discord_name": interaction.user.name, "minecraft_username": name.replace("\\", ""), "minecraft_uuid": uuid}
+        linkeddiscord = data["player"].get("socialMedia", {}).get("links", {}).get("DISCORD", "")
 
-        with open("data.json", "w", encoding="utf-8") as f:
-            json.dump(links, f, indent=4)
+        if linkeddiscord == interaction.user.name:
+            with open("data.json", "r", encoding="utf-8") as f:
+                links = json.load(f)
+            
+            links[str(interaction.user.id)] = {"discord_name": interaction.user.name, "minecraft_username": name.replace("\\", ""), "minecraft_uuid": uuid}
 
-        embed = discord.Embed(
-            title = "Linked account",
-            description = f"Linked Discord user `@{interaction.user.name}` with Minecraft account **{name}**.",
-            color = discord.Color.blurple(),
-            timestamp = datetime.now(tz=timezone.utc)
-        )
+            with open("data.json", "w", encoding="utf-8") as f:
+                json.dump(links, f, indent=4)
+
+            embed = set_embed(
+                "Linked account",
+                f"Linked Discord user `@{interaction.user.name}` to Minecraft account **{name}**.",
+                discord.Color.blurple(),
+                uuid
+            )
+        else:
+            embed = discord.Embed(
+                title = "Discord user not linked to Hypixel",
+                description = "To link your Discord account to your Hypixel account: log in to Hypixel and go to **Profile -> Social Media -> Discord** and type your Discord username in chat.",
+                color = discord.Color.red(),
+                timestamp = datetime.now(tz=timezone.utc)
+            )
         embed.set_footer(text="Made by @Quent120", icon_url=ICON)
 
         await interaction.response.send_message(embed=embed)
@@ -72,7 +82,7 @@ async def unlink(interaction: discord.Interaction):
             embed.set_footer(text="Made by @Quent120", icon_url=ICON)
         else:
             embed=error_embed(
-                f"No Minecraft account found associated to Discord user `@{interaction.user.name}`. Use **/link** to use commands without having to specify a username first."
+                f"No Minecraft account found associated to Discord user `@{interaction.user.name}`. Use **/link** to run commands without having to specify a username first."
             )
 
         await interaction.response.send_message(embed=embed)
@@ -1747,6 +1757,7 @@ class perfectview(discord.ui.View):
 
         if perfect:
             description += "\n".join(perfect)
+            description += "\n**Warning**: Getting a time of exactly 0ms resets the checkpoint's time on the next attempt."
         else:
             description = f"**{self.name}** never got a checkpoint time of 3s or below."
             self.color = discord.Color.red()
@@ -1761,7 +1772,7 @@ class perfectview(discord.ui.View):
         await interaction.response.edit_message(embed=newembed, view=self)
 
 #Command
-@app_commands.command(name="parkours", description="Show player's combined parkour time across all lobbies")
+@app_commands.command(name="parkours", description="Show player's combined parkour time across all lobbies and checkpoints")
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def parkours(interaction: discord.Interaction, username: str = None):
@@ -1794,6 +1805,7 @@ async def parkours(interaction: discord.Interaction, username: str = None):
                 "MurderMystery": "Murder Mystery",
                 "Prototype2025": "Prototype",
                 "Warlords": "Warlords",
+                "Legacy": "Classic Games",
                 "BlitzLobby": "Blitz SG"
             }
 
@@ -1848,13 +1860,52 @@ async def parkours(interaction: discord.Interaction, username: str = None):
                     embed.add_field(name=lobby, value=f"▸ {formatted_time(parkour[lobby]["Best Time"])}\n__Best Checkpoints__\n{checkpoints}", inline = True)
                 else:
                     embed.add_field(name=lobby, value=f"▸ {formatted_time(parkour[lobby]["Best Time"])}\n__Sum of Best__\n▸ {formatted_time(sumofbest)}\n__Best Checkpoints__\n{checkpoints}", inline = True)
-            embed.add_field(name="", value="", inline=True)
             
             if missing and len(missing) != len(parkour):
                 missing = "`, `".join(missing)
                 embed.add_field(name=f"\n\n**Warning**: Missing completion for `{missing}`", value="", inline=False)
 
             await interaction.response.send_message(embed=embed, view=perfectview(uuid, name, rank, color, parkour, parkourCompletions, checkpointBests, AVAILABLE_PARKOURS))
+        
+    #Error
+    except Exception as e:
+        await handle_error(interaction, e)
+
+# =====================================================================
+# /activecollectibles
+# =====================================================================
+
+@app_commands.command(name="activecollectibles", description="Show player's selected and favorites collectibles from the lobby")
+@app_commands.describe(username="In game name of the player")
+@app_commands.rename(username="player")
+async def activecollectibles(interaction: discord.Interaction, username: str = None):
+    session = interaction.client.session
+    try:
+        #Link
+        username = await is_linked(username, interaction.user.id)
+        if isinstance(username, discord.Embed):
+            await interaction.response.send_message(embed=username)
+        else:
+            #API
+            uuid, name = await get_mojang_api(session, username)
+            data = await get_hypixel_api(session, username, uuid)
+            rank = get_rank(data)
+
+            favoritecollectibles = data["player"].get("vanityFavorites", "None")
+            gadget = data["player"].get("currentGadget", "None")
+            clickeffect = data["player"].get("currentClickEffect", "None")
+            cloak = data["player"].get("currentCloak", "None")
+            particlepack = data["player"].get("particlePack", "None")
+            hat = data["player"].get("currentHat", "None")
+            pet = data["player"].get("currentPet", "None")
+            suit = data["player"].get("outfit", {})
+
+            await interaction.response.send_message(embed=set_embed(
+            f"{rank} {name}'s selected collectibles",
+            f"**Favorite Collectibles**:\n▸ `{favoritecollectibles.replace("TAUNT", "GESTURE").replace("OUTFIT", "SUIT").replace("_HELMET", "").replace("_", " ").replace(";", "`, `").title()}`\n**Gadget**: `{gadget.replace("_", " ").title()}`\n\n**Click Effect**: `{clickeffect.replace("_", " ").title()}`\n**Cloak**: `{cloak.replace("_", " ").title()}`\n**Particle Pack**: `{particlepack.replace("_", " ").title()}`\n**Hat**: `{hat.replace("_", " ").title()}`\n**Pet**: `{pet.replace("_", " ").title()}`\n**Suit**:\n ▸ Helmet: `{suit.get("HELMET", "None").replace("_Helmet", "").replace("_", " ").title()}`\n ▸ Chestplate: `{suit.get("CHESTPLATE", "None").replace("_Helmet", "").replace("_", " ").title()}`\n ▸ Leggings: `{suit.get("LEGGINGS", "None").replace("_Helmet", "").replace("_", " ").title()}`\n ▸ Boots: `{suit.get("BOOTS", "None").replace("_Helmet", "").replace("_", " ").title()}`",
+            discord.Color.magenta(),
+            uuid
+        ))
         
     #Error
     except Exception as e:

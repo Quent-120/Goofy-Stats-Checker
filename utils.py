@@ -189,19 +189,20 @@ def formatted_time(time):
         m = (time % 3600000) // 60000
         s = (time % 60000) // 1000
         ms = time % 1000
+        l = []
         if h:
-            return f"`{h:,}h` `{m}min` `{s}s`"
-        elif m:
-            return f"`{m}min` `{s}s` `{ms}ms`"
-        elif s:
-            return f"`{s}s` `{ms}ms`"
-        else:
-            return f"`{ms}ms`"
-    else:
-        return time
+            l.append(f"`{h:,}h`")
+        if m:
+            l.append(f"`{m}min`")
+        if s:
+            l.append(f"`{s}s`")
+        if ms:
+            l.append(f"`{ms}ms`")
+        time = " ".join(l) or "`0ms`"
+    return time
 
 async def handle_error(interaction, error):
-    traceback.print_exception(error)
+    # traceback.print_exception(error)
     if isinstance(error, ValueError):
         description = str(error)
     elif isinstance(error, aiohttp.ContentTypeError):

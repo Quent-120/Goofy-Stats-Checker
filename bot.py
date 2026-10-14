@@ -55,6 +55,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(sheepwarskit)
         self.tree.add_command(randomstat)
         self.tree.add_command(parkours)
+        self.tree.add_command(activecollectibles)
 
     async def on_ready(self):
         print(f"Bot logged in as {self.user}.")
@@ -127,15 +128,12 @@ async def forcelink(interaction: discord.Interaction, discorduser: discord.Membe
         with open("data.json", "w", encoding="utf-8") as f:
             json.dump(links, f, indent=4)
 
-        embed = discord.Embed(
-            title = "Linked account",
-            description = f"Forced link Discord user `@{discorduser.name}` with Minecraft account **{name}**.",
-            color = discord.Color.blurple(),
-            timestamp = datetime.now(tz=timezone.utc)
-        )
-        embed.set_footer(text="Made by @Quent120", icon_url=ICON)
-
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=set_embed(
+                "Linked account",
+                f"Linked Discord user `@{interaction.user.name}` to Minecraft account **{name}**.",
+                discord.Color.blurple(),
+                uuid
+        ))
 
     #Error
     except Exception as e:
@@ -168,7 +166,7 @@ async def forceunlink(interaction: discord.Interaction, discorduser: discord.Mem
             embed.set_footer(text="Made by @Quent120", icon_url=ICON)
         else:
             embed=error_embed(
-                f"No Minecraft account found associated to Discord user `@{discorduser.name}`. Use **/link** to use commands without having to specify a username first."
+                f"No Minecraft account found associated to Discord user `@{discorduser.name}`. Use **/link** to run commands without having to specify a username first."
             )
 
         await interaction.response.send_message(embed=embed)
