@@ -15,6 +15,7 @@ class MyBot(commands.Bot):
     
     async def setup_hook(self):
         self.session = aiohttp.ClientSession()
+        os.makedirs("cache", exist_ok=True)
         self.tree.add_command(sync)
         self.tree.add_command(link)
         self.tree.add_command(unlink)

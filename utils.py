@@ -1,31 +1,32 @@
 import discord
 import aiohttp
 import asyncio
-import traceback
 import json
 import re
+import os
 from datetime import datetime, timezone
 from config import HYPIXEL_API_KEY
 
 ICON = "https://minotar.net/helm/d61cd4e9fcf146d2bd1dd9b494405b07/15"
 
 #Converts in game rank colors to Discord embed colors
-PLUSCOLORS = {
-    "None": discord.Color.light_grey(),
-    "Red": discord.Color.red(),
-    "Gold": discord.Color(0xF2A224),
-    "Green": discord.Color(0x72EB50),
-    "Yellow": discord.Color.yellow(),
-    "Light Purple": discord.Color(0xC936E0),
+MINECRAFTCOLORS = {
+    "Gray": discord.Color(0xAAAAAA),
+    "Red": discord.Color(0xFF5555),
+    "Gold": discord.Color(0xFFAA00),
+    "Green": discord.Color(0x55FF55),
+    "Yellow": discord.Color(0xFFFF4B),
+    "Light Purple": discord.Color(0xFF55FF),
     "White": discord.Color(0xFFFFFF),
-    "Blue": discord.Color(0x3244AD),
-    "Dark Green": discord.Color(0x006114),
-    "Dark Red": discord.Color(0x780000),
-    "Dark Aqua": discord.Color(0x0B6F8A),
-    "Dark Purple": discord.Color(0x68077A),
-    "Dark Gray": discord.Color(0x3D3D3D),
+    "Blue": discord.Color(0x514FF8),
+    "Dark Green": discord.Color(0x00AA00),
+    "Dark Red": discord.Color(0xA20402),
+    "Dark Aqua": discord.Color(0x04A2A2),
+    "Dark Purple": discord.Color(0xAA00AA),
+    "Dark Gray": discord.Color(0x555555),
     "Black": discord.Color(0x010101),
-    "Dark Blue": discord.Color(0x0E0673),
+    "Dark Blue": discord.Color(0x00009C),
+    "Light Blue": discord.Color(0x55FFFF)
 }
 
 BEDWARSSTARS = {
@@ -135,6 +136,20 @@ def set_embed(title, description, color, uuid):
     embed.set_footer(text="Made by @Quent120", icon_url=ICON)
     return embed
 
+def read_cache(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+
+def write_cache(path, data):
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+    except (OSError, TypeError):
+        pass
+        
 async def get_mojang_api(session, username):
     async with session.get(f"https://api.mojang.com/users/profiles/minecraft/{username}") as response:
         mojang_data = await response.json()
@@ -145,16 +160,19 @@ async def get_mojang_api(session, username):
         raise ValueError(f"Error {response.status}. Mojang's API returned with error: `{error}`.")
     uuid = mojang_data["id"]
     name = mojang_data["name"].replace("_", r"\_")
-    return  uuid, name
+    return uuid, name
 
 async def get_hypixel_api(session, username, uuid):
-    async with session.get("https://api.hypixel.net/player", params={"key": HYPIXEL_API_KEY, "uuid": uuid}) as response:
-        data = await response.json()
-    if response.status != 200:
-        print(f"Error {response.status}\nRatelimit: {response.headers.get("RateLimit-Remaining")}/{response.headers.get("RateLimit-Reset")}", await response.text())
-        raise ValueError(f"Error {response.status}. Something went wrong with Hypixel's API.")
-    if data["player"] is None:
-        raise ValueError(f"`{username}` never logged into Hypixel.")
+    data = await asyncio.to_thread(read_cache, f"cache/{uuid}.json")
+    if data is None:
+        async with session.get("https://api.hypixel.net/player", params={"key": HYPIXEL_API_KEY, "uuid": uuid}) as response:
+            if response.status != 200:
+                print(f"Error {response.status}\nRatelimit: {response.headers.get("RateLimit-Remaining")}/{response.headers.get("RateLimit-Reset")}", await response.text())
+                raise ValueError(f"Error {response.status}. Something went wrong with Hypixel's API.")
+            data = await response.json()
+            if data["player"] is None:
+                raise ValueError(f"`{username}` never logged into Hypixel.")
+        await asyncio.to_thread(write_cache, f"cache/{uuid}.json", data)
     return data
 
 async def is_linked(username, discordid):
@@ -310,3 +328,9 @@ def get_murdermystery_level(data):
     prefixicon = MURDERMYSTERYPREFIXICON.get(prefixicon)
 
     return f"{prefixstat[0] if prefixstat else ""}{format_number(prefixstat[1] if prefixstat else "")}{prefixicon}{prefixstat[2] if prefixstat else ""}"
+
+def get_housing_plus(data):
+    if "housing_plus" in data["player"].get("housingMeta", {}).get("packages", []) and data["player"].get("housingMeta", {}).get("playerSettings", {}).get("HOUSING_PLUS_PREFIX", "BooleanState-true") == "BooleanState-true":
+        return "+ "
+    else:
+        return ""

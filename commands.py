@@ -349,7 +349,7 @@ async def rankcolor(interaction: discord.Interaction, username: str = None):
             plusplusmonths = data["player"].get("cachedData", {}).get("superstarMonths", {}).get("value", 0)
 
             if plusColor == "Red" and rank in ["", "[VIP]", "[VIP+]", "[MVP]", "[MOJANG]"]:
-                plusColor = "None"
+                plusColor = "Gray"
                 description = f"**{name}** hasn't unlocked plus colors."
             else:
                 description = f"**{name}** selected the `{plusColor}` plus color with `{rankColor}` name."
@@ -360,7 +360,7 @@ async def rankcolor(interaction: discord.Interaction, username: str = None):
             await interaction.response.send_message(embed=set_embed(
                 f"{rank} {name}'s selected rank color",
                 description,
-                PLUSCOLORS.get(plusColor, discord.Color.red()),
+                MINECRAFTCOLORS.get(plusColor, discord.Color.red()),
                 uuid
             ))
 
@@ -452,6 +452,8 @@ async def housingadvanced(interaction: discord.Interaction, username: str = None
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
+            housingplus = get_housing_plus(data)
+
             advancedvariableoperations = data["player"].get("housingMeta", {}).get("playerSettings", {}).get("ADVANCED_VARIABLE_OPERATIONS", "BooleanState-false")
             if advancedvariableoperations == "BooleanState-true":
                 description = f"{name} **enabled** Housing advanced bitwise stats operations"
@@ -461,7 +463,7 @@ async def housingadvanced(interaction: discord.Interaction, username: str = None
                 color = discord.Color.red()
 
             await interaction.response.send_message(embed=set_embed(
-                f"{rank} {name}'s Housing advanced",
+                f"{housingplus}{rank} {name}'s Housing advanced",
                 description,
                 color,
                 uuid
@@ -766,6 +768,8 @@ async def housingrepulsor(interaction: discord.Interaction, username: str = None
             uuid, name = await get_mojang_api(session, username)
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
+
+            housingplus = get_housing_plus(data)
         
             ytrepulsor = data["player"].get("housingMeta", {}).get("playerSettings", {}).get("YT_REPULSOR", "IntegerState-0") == "IntegerState-1"
 
@@ -780,7 +784,7 @@ async def housingrepulsor(interaction: discord.Interaction, username: str = None
                 color = discord.Color.red()
 
             await interaction.response.send_message(embed=set_embed(
-            f"{rank} {name}'s YouTube repulsor",
+            f"{housingplus}{rank} {name}'s YouTube repulsor",
             description,
             color,
             uuid
@@ -909,6 +913,8 @@ async def cookiesgiven(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
+            housingplus = get_housing_plus(data)
+
             cookiesgiven = []
             for i in data["player"].get("housingMeta", {}):
                 if i.startswith("given_cookies_"):
@@ -916,7 +922,7 @@ async def cookiesgiven(interaction: discord.Interaction, username: str = None):
 
 
             await interaction.response.send_message(embed=set_embed(
-            f"{rank} {name}'s Housing cookies given",
+            f"{housingplus}{rank} {name}'s Housing cookies given",
             f"**{name}** has given `{len(cookiesgiven):,}` packs of cookies in Housing",
             discord.Color(0xD68A3C),
             uuid
@@ -1863,7 +1869,7 @@ async def parkours(interaction: discord.Interaction, username: str = None):
             
             if missing and len(missing) != len(parkour):
                 missing = "`, `".join(missing)
-                embed.add_field(name=f"\n\n**Warning**: Missing completion for `{missing}`", value="", inline=False)
+                embed.add_field(name="\u200b", value=f"**Warning**: Missing completion for `{missing}`", inline=False)
 
             await interaction.response.send_message(embed=embed, view=perfectview(uuid, name, rank, color, parkour, parkourCompletions, checkpointBests, AVAILABLE_PARKOURS))
         

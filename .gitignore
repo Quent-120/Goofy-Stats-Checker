@@ -2,3 +2,4 @@
 data.json
 findpath.py
 __pycache__/
+cache/
