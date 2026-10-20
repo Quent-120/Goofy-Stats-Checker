@@ -4,7 +4,9 @@ import asyncio
 import json
 import re
 import os
+import time
 from datetime import datetime, timezone
+from discord.ext import tasks
 from config import HYPIXEL_API_KEY
 
 ICON = "https://minotar.net/helm/d61cd4e9fcf146d2bd1dd9b494405b07/15"
@@ -138,6 +140,8 @@ def set_embed(title, description, color, uuid):
 
 def read_cache(path):
     try:
+        if time.time() - os.path.getmtime(path) > 180:
+            return None
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     except (OSError, json.JSONDecodeError):
@@ -149,6 +153,22 @@ def write_cache(path, data):
             json.dump(data, f)
     except (OSError, TypeError):
         pass
+
+def clear_cache():
+    try:
+        with os.scandir("cache") as it:
+            for entry in it:
+                try:
+                    if entry.name.endswith(".json") and time.time() - entry.stat().st_mtime > 180:
+                        os.remove(entry.path)
+                except OSError:
+                    pass
+    except OSError:
+        pass
+
+@tasks.loop(seconds=60)
+async def clear_cache_loop():
+    await asyncio.to_thread(clear_cache)
         
 async def get_mojang_api(session, username):
     async with session.get(f"https://api.mojang.com/users/profiles/minecraft/{username}") as response:
@@ -238,7 +258,7 @@ async def handle_error(interaction, error):
     else:
         print("Error:", error)
         description = "Something went wrong."
-    await interaction.response.send_message(embed = error_embed(description))
+    await interaction.followup.send(embed = error_embed(description))
 
 def get_rank(data):
     prefix = data["player"].get("prefix", "")

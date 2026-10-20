@@ -16,6 +16,7 @@ class MyBot(commands.Bot):
     async def setup_hook(self):
         self.session = aiohttp.ClientSession()
         os.makedirs("cache", exist_ok=True)
+        clear_cache_loop.start()
         self.tree.add_command(sync)
         self.tree.add_command(link)
         self.tree.add_command(unlink)
@@ -61,8 +62,12 @@ class MyBot(commands.Bot):
     async def on_ready(self):
         print(f"Bot logged in as {self.user}.")
 
-    async def on_close(self):
+    async def close(self):
+        print("Bot disconected.")
+        clear_cache_loop.stop()
+        await asyncio.to_thread(clear_cache)
         await self.session.close()
+        await super().close()
 
 bot = MyBot()
 
@@ -81,6 +86,8 @@ async def sync(interaction: discord.Interaction):
             timestamp = datetime.now(tz=timezone.utc)
         )
         return await interaction.response.send_message(embed=embed)
+    
+    await interaction.response.defer()
     try:
         print("Loading...")
         await bot.tree.sync()
@@ -91,12 +98,12 @@ async def sync(interaction: discord.Interaction):
             color = discord.Color(0x010101),
             timestamp = datetime.now(tz=timezone.utc)
         )
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     #Error
     except Exception as e:
         print(e)
-        await interaction.response.send_message(embed=error_embed("Something went wrong."))
+        await interaction.followup.send(embed=error_embed("Something went wrong."))
 
 # =====================================================================
 
@@ -114,6 +121,7 @@ async def forcelink(interaction: discord.Interaction, discorduser: discord.Membe
             )
             return await interaction.response.send_message(embed=embed)
     
+    await interaction.response.defer()
     session = interaction.client.session
     try:
 
@@ -129,11 +137,11 @@ async def forcelink(interaction: discord.Interaction, discorduser: discord.Membe
         with open("data.json", "w", encoding="utf-8") as f:
             json.dump(links, f, indent=4)
 
-        await interaction.response.send_message(embed=set_embed(
-                "Linked account",
-                f"Linked Discord user `@{interaction.user.name}` to Minecraft account **{name}**.",
-                discord.Color.blurple(),
-                uuid
+        await interaction.followup.send(embed=set_embed(
+            "Linked account",
+            f"Linked Discord user `@{interaction.user.name}` to Minecraft account **{name}**.",
+            discord.Color.blurple(),
+            uuid
         ))
 
     #Error
@@ -147,6 +155,7 @@ async def forcelink(interaction: discord.Interaction, discorduser: discord.Membe
 @app_commands.describe(discorduser = "Discord name of the user")
 @app_commands.rename(discorduser = "discord-name")
 async def forceunlink(interaction: discord.Interaction, discorduser: discord.Member):
+    await interaction.response.defer()
     try:
 
         with open("data.json", "r", encoding="utf-8") as f:
@@ -170,14 +179,14 @@ async def forceunlink(interaction: discord.Interaction, discorduser: discord.Mem
                 f"No Minecraft account found associated to Discord user `@{discorduser.name}`. Use **/link** to run commands without having to specify a username first."
             )
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     #Error
     except Exception as e:
         await handle_error(interaction, e)
 
 
-# Funni
+# Fun
 @bot.command()
 async def ping(ctx):
     await ctx.send("pong")

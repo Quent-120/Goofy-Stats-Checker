@@ -17,6 +17,7 @@ from utils import *
 @app_commands.describe(username="Your in game name")
 @app_commands.rename(username="name")
 async def link(interaction: discord.Interaction, username: str):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
 
@@ -50,7 +51,7 @@ async def link(interaction: discord.Interaction, username: str):
             )
         embed.set_footer(text="Made by @Quent120", icon_url=ICON)
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     #Error
     except Exception as e:
@@ -62,6 +63,7 @@ async def link(interaction: discord.Interaction, username: str):
 
 @app_commands.command(name="unlink", description="Unlink your Minecraft account from this Discord bot")
 async def unlink(interaction: discord.Interaction):
+    await interaction.response.defer()
     try:
 
         with open("data.json", "r", encoding="utf-8") as f:
@@ -85,7 +87,7 @@ async def unlink(interaction: discord.Interaction):
                 f"No Minecraft account found associated to Discord user `@{interaction.user.name}`. Use **/link** to run commands without having to specify a username first."
             )
 
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     #Error
     except Exception as e:
@@ -99,12 +101,13 @@ async def unlink(interaction: discord.Interaction):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def level(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -120,7 +123,7 @@ async def level(interaction: discord.Interaction, username: str = None):
             else:
                 description = f"**{name}** is network level `{level:,}`, that's `{maxlevel}` time(s) level 250!"
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s Network Level",
                 description,
                 discord.Color(0x14859C),
@@ -194,12 +197,13 @@ class yearview(discord.ui.View):
 ])
 @app_commands.rename(username="player")
 async def aprilfool(interaction: discord.Interaction, year: app_commands.Choice[str], username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -234,7 +238,7 @@ async def aprilfool(interaction: discord.Interaction, year: app_commands.Choice[
                 )
                 year.value = "become sheep"
             
-            await interaction.response.send_message(embed=embed, view=yearview(uuid, name, rank, year.value, grass, plants, logs, kelp, carrot, golden_carrot))
+            await interaction.followup.send(embed=embed, view=yearview(uuid, name, rank, year.value, grass, plants, logs, kelp, carrot, golden_carrot))
             
     #Error
     except Exception as e:
@@ -248,12 +252,13 @@ async def aprilfool(interaction: discord.Interaction, year: app_commands.Choice[
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def quickbuyprivacy(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -275,7 +280,7 @@ async def quickbuyprivacy(interaction: discord.Interaction, username: str = None
                 description = f"Nobody can share their Quick Buy with {bw_level} {name}."
                 color = discord.Color.red()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s quickbuy layout privacy",
                 f"`{quickbuy_privacy}`: {description}",
                 color,
@@ -294,12 +299,13 @@ async def quickbuyprivacy(interaction: discord.Interaction, username: str = None
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def sledtype(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -313,7 +319,7 @@ async def sledtype(interaction: discord.Interaction, username: str = None):
             else:
                 description = f"**{name}** hasn't unlocked the sled gadget."
             
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s selected sled gadget",
                 description,
                 discord.Color.dark_orange(),
@@ -332,12 +338,13 @@ async def sledtype(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def rankcolor(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -357,7 +364,7 @@ async def rankcolor(interaction: discord.Interaction, username: str = None):
             if plusplusmonths != 0:
                 description += f"\n‣ Total **MVP++** subscription months: `{plusplusmonths:,}`"
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s selected rank color",
                 description,
                 MINECRAFTCOLORS.get(plusColor, discord.Color.red()),
@@ -378,12 +385,13 @@ async def rankcolor(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def gamblergeorge(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -420,7 +428,7 @@ async def gamblergeorge(interaction: discord.Interaction, username: str = None):
                             description = f"Quest **in progress**, {bw_level} {name} won `{wins:,}`/`2` games so far.\n*▸ Note that wins past 2 do not reset on loss.*"
                     color = discord.Color.green()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s Gambler George quest status",
                 description,
                 color,
@@ -440,12 +448,13 @@ async def gamblergeorge(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def housingadvanced(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -462,7 +471,7 @@ async def housingadvanced(interaction: discord.Interaction, username: str = None
                 description = f"{name} **disabled** Housing advanced bitwise stats operations"
                 color = discord.Color.red()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{housingplus}{rank} {name}'s Housing advanced",
                 description,
                 color,
@@ -481,12 +490,13 @@ async def housingadvanced(interaction: discord.Interaction, username: str = None
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def paidsouls(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -501,7 +511,7 @@ async def paidsouls(interaction: discord.Interaction, username: str = None):
             else:
                 description = f"**{sw_level} {name}** has paid `{paid_souls:,}` SkyWars souls with coins."
             
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s paid SkyWars souls",
                 description,
                 discord.Color.dark_purple(),
@@ -520,12 +530,13 @@ async def paidsouls(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def ultimate(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -542,7 +553,7 @@ async def ultimate(interaction: discord.Interaction, username: str = None):
                 description = f"{bw_level} {name} selected the `{ultimate}` ultimate."
                 color = discord.Color.gold()
         
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s selected Bed Wars Ultimate",
                 description,
                 color,
@@ -561,12 +572,13 @@ async def ultimate(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def mmsuicides(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -576,7 +588,7 @@ async def mmsuicides(interaction: discord.Interaction, username: str = None):
             mm_level = get_murdermystery_level(data)
             suicides = data["player"].get("stats", {}).get("MurderMystery", {}).get("suicides", 0)
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s Murder Mystery suicides",
             f"{mm_level} {name} shot himself `{suicides:,}` times with a bow and an arrow!",
             discord.Color.dark_red(),
@@ -595,12 +607,13 @@ async def mmsuicides(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def collectibles(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -609,7 +622,7 @@ async def collectibles(interaction: discord.Interaction, username: str = None):
 
             collectibles = len(data["player"].get("vanityMeta", {}).get("packages", []))
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s collectibles unlocked",
             f"**{name}** has unlocked `{collectibles:,}` lobby collectibles.",
             discord.Color(0x2BFCFC),
@@ -634,6 +647,7 @@ class achievementsview(discord.ui.View):
         self.tracking = tracking
         if len(self.tracking) == 0:
             self.remove_item(self.showachievements)         
+
     @discord.ui.button(label="Show all", style=discord.ButtonStyle.primary)
     async def showachievements(self, interaction: discord.Interaction, button: discord.ui.Button):
         button.disabled = True
@@ -650,12 +664,13 @@ class achievementsview(discord.ui.View):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def trackedachievements(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -664,7 +679,7 @@ async def trackedachievements(interaction: discord.Interaction, username: str = 
 
             tracking = data["player"].get("achievementTracking", [])
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s tracked achievements",
             f"**{name}** is curently tracking `{len(tracking):,}` tiered achievements.",
             discord.Color(0x27BEF5),
@@ -683,12 +698,13 @@ async def trackedachievements(interaction: discord.Interaction, username: str = 
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def music(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -704,7 +720,7 @@ async def music(interaction: discord.Interaction, username: str = None):
             else:
                 description = f"• Bed Wars : `{bedwars}`\n• Build Battle: `{buildbattle}`\n• Housing: `{housing}`\n• Pixel Party: `True` Volume: `{int(pixelparty)}%`"
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s toggled musics",
             description,
             discord.Color.pink(),
@@ -724,12 +740,13 @@ async def music(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def bingobucks(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -738,7 +755,7 @@ async def bingobucks(interaction: discord.Interaction, username: str = None):
 
             bingobucks = data["player"].get("seasonal", {}).get("bingo", {}).get("bucks", 0)
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s bingo bucks",
             f"**{name}** has `{bingobucks:,}` bingo bucks.",
             discord.Color.green(),
@@ -757,12 +774,13 @@ async def bingobucks(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def housingrepulsor(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -783,7 +801,7 @@ async def housingrepulsor(interaction: discord.Interaction, username: str = None
                     description = f"**{name}** has `disabled` the YouTube repulsor gadget."
                 color = discord.Color.red()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{housingplus}{rank} {name}'s YouTube repulsor",
             description,
             color,
@@ -802,12 +820,13 @@ async def housingrepulsor(interaction: discord.Interaction, username: str = None
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def boxingfish(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -816,7 +835,7 @@ async def boxingfish(interaction: discord.Interaction, username: str = None):
 
             boxingfish = data["player"].get("stats", {}).get("Duels", {}).get("active_boxing_fish", "boxing_fish_raw_fish").replace("boxing_fish_", "").replace("_", " ").title()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s selected boxing duel fish",
             f"**{name}** selected the `{boxingfish}` boxing fish skin.",
             discord.Color.dark_teal(),
@@ -835,12 +854,13 @@ async def boxingfish(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def longestcombo(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -849,7 +869,7 @@ async def longestcombo(interaction: discord.Interaction, username: str = None):
 
             longestcombo = data["player"].get("stats", {}).get("Duels", {}).get("longest_combo", 0)
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s longest Duels combo",
             f"**{name}** got a combo of `{longestcombo:,}` hits in Duels!",
             discord.Color.orange(),
@@ -868,12 +888,13 @@ async def longestcombo(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def warlordmvp(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -882,7 +903,7 @@ async def warlordmvp(interaction: discord.Interaction, username: str = None):
 
             mvp = data["player"].get("stats", {}).get("Battleground", {}).get("mvp_count", 0)
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s MVP Warlord games",
             f"**{name}** was the MVP of the game `{mvp:,}` time(s) in Warlord.",
             discord.Color.dark_green(),
@@ -901,12 +922,13 @@ async def warlordmvp(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def cookiesgiven(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -921,7 +943,7 @@ async def cookiesgiven(interaction: discord.Interaction, username: str = None):
                     cookiesgiven.append(i)
 
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{housingplus}{rank} {name}'s Housing cookies given",
             f"**{name}** has given `{len(cookiesgiven):,}` packs of cookies in Housing",
             discord.Color(0xD68A3C),
@@ -969,12 +991,13 @@ class favoritemapsview(discord.ui.View):
     app_commands.Choice(name="Murder Mystery", value="murdermystery"),
 ])
 async def favoritemaps(interaction: discord.Interaction, mode: app_commands.Choice[str], username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -996,7 +1019,7 @@ async def favoritemaps(interaction: discord.Interaction, mode: app_commands.Choi
                 if i.startswith("favoritemap_"):
                     favoritemaps.append(i)
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s favorite maps",
             f"**{name}** has `{len(favoritemaps):,}` maps added to favorite in {mode.name}.",
             color,
@@ -1015,12 +1038,13 @@ async def favoritemaps(interaction: discord.Interaction, mode: app_commands.Choi
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def deliveryman(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1083,7 +1107,7 @@ async def deliveryman(interaction: discord.Interaction, username: str = None):
             embed.add_field(name=f"**{name}** has unlocked `{count:,}/6` daily reward collectibles", value=f"• Moustache Emote: `{"emote_moustache" in collectibles}`\n• Dig For Treasure Gesture: `{"taunt_treasure" in collectibles}`\n• Treasure Hunter Suit Helmet: `{"suit_treasure_helmet" in collectibles}`\n• Treasure Hunter Suit chestplate: `{"suit_treasure_chestplate" in collectibles}`\n• Treasure Hunter Suit Leggings: `{"suit_treasure_leggings" in collectibles}`\n• Treasure Hunter Suit Boots: `{"suit_treasure_boots" in collectibles}`", inline = False)
             embed.add_field(name="Daily free 2,000xp", value=f"• Last claimed: {explastclaimed}", inline = False)
 
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
 
     #Error
     except Exception as e:
@@ -1097,12 +1121,13 @@ async def deliveryman(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def chatchannel(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1125,7 +1150,7 @@ async def chatchannel(interaction: discord.Interaction, username: str = None):
                 color = discord.Color(0x23DDEB)
 
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s selected chat channel",
             f"**{name}** is curently using the `{channel}` channel.", 
             color,
@@ -1144,12 +1169,13 @@ async def chatchannel(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def murdererchance(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1168,7 +1194,7 @@ async def murdererchance(interaction: discord.Interaction, username: str = None)
                     description = f"**{name}** disabled YouTube rank's increased murderer/detective chances."
                 color = discord.Color.red()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s increased Murder Mystery chances",
             description, 
             color,
@@ -1187,12 +1213,13 @@ async def murdererchance(interaction: discord.Interaction, username: str = None)
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def classicgames(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1232,7 +1259,7 @@ async def classicgames(interaction: discord.Interaction, username: str = None):
             if totaltokens != 0:
                 embed.add_field(name = "Earned tokens details", value = f"• Arena Brawl: `{arenabrawl:,}` *≈ {round((arenabrawl * 2)/60, 1):,}h*\n• VampireZ: `{vampirez:,}` *≈ {round((vampirez * 2)/60, 1):,}h*\n• Turbo Kart Racers: `{tkr:,}` *≈ {round((tkr * 2)/60, 1):,}h*\n• Quakecraft: `{quake:,}` *≈ {round((quake * 2)/60, 1):,}h*\n• The Walls: `{walls:,}` *≈ {round((walls * 2)/60, 1):,}h*\n• Paintball Warfare: `{paintball:,}` *≈ {round((paintball * 2)/60, 1):,}h*", inline = False)
 
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
 
     #Error
     except Exception as e:
@@ -1246,12 +1273,13 @@ async def classicgames(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def poop(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1260,7 +1288,7 @@ async def poop(interaction: discord.Interaction, username: str = None):
     
             poops = data["player"].get("stats", {}).get("Arcade", {}).get("poop_collected_farm_hunt", 0)
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s Farm Hunt collected poops",
             f"**{name}** has collected `{poops:,}` poops!", 
             discord.Color(0x693E13),
@@ -1279,12 +1307,13 @@ async def poop(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def language(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1294,7 +1323,7 @@ async def language(interaction: discord.Interaction, username: str = None):
             language = data["player"].get("userLanguage", "ENGLISH").replace("PIRATE", "PIRATE_SPEAK").replace("PORTUGUESE_BR","BRAZILIAN_PORTUGUESE").replace("PORTUGUESE_PT", "PORTUGUESE").replace("_", " ").capitalize()
             autodetect = data["player"].get("autoDetectLanguage", "false").title()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s Hypixel language",
             f"**{name}** selected `{language}` as their Hypixel language.\n‣ Auto detect language: `{autodetect}`", 
             discord.Color.og_blurple(),
@@ -1313,12 +1342,13 @@ async def language(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def pitallegiance(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1346,7 +1376,7 @@ async def pitallegiance(interaction: discord.Interaction, username: str = None):
                 description += f"\n• Last played: `{days:,}d {hours}h ago`"
             description += f"\n• Faction spawn: `{spawn}`"
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s Genesis alliegance stats",
             description, 
             color,
@@ -1365,12 +1395,13 @@ async def pitallegiance(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def smashheroesboosters(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1411,7 +1442,7 @@ async def smashheroesboosters(interaction: discord.Interaction, username: str = 
             else:
                 embed.add_field(name = "Active EXP Booster", value = f"**{name}** curently doesn't have an active EXP booster.", inline = False)
 
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
      
     #Error
     except Exception as e:
@@ -1425,12 +1456,13 @@ async def smashheroesboosters(interaction: discord.Interaction, username: str = 
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def bwminion(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1512,13 +1544,13 @@ async def bwminion(interaction: discord.Interaction, username: str = None):
                 buffer.seek(0)
                 file2 = discord.File(fp=buffer, filename="Ender Dust Minion X Inventory.png")
 
-                await interaction.response.send_message(
+                await interaction.followup.send(
                     content=f"{bw_level} {rank} {name}'s Ender Dust Minion stats",
                     files=[file1, file2]
                 )
 
             else:
-                await interaction.response.send_message(embed=set_embed(
+                await interaction.followup.send(embed=set_embed(
                     f"{rank} {name}'s Ender Dust Minion stats",
                     f"{bw_level} {name} hasn't unlocked the Bed Wars minion from the Slumber Hotel.",
                     discord.Color.red(),
@@ -1537,12 +1569,13 @@ async def bwminion(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def smashheroeslimit(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1562,7 +1595,7 @@ async def smashheroeslimit(interaction: discord.Interaction, username: str = Non
             else:
                 color = discord.Color.red()
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s Smash Heroes games limit",
                 f"[{level:,} ✶] {name} has played `{games:,}/50` games of 1v1 today.",
                 color,
@@ -1581,12 +1614,13 @@ async def smashheroeslimit(interaction: discord.Interaction, username: str = Non
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def lockedchallenges(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1628,7 +1662,7 @@ async def lockedchallenges(interaction: discord.Interaction, username: str = Non
 
                     embed.add_field(name=f"{title}", value=f"Wins with Challenge: `{wins:,}`\nFastest Completion: `{h:02}:{m:02}:{s:02}`", inline = True)
 
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
 
     #Error
     except Exception as e:
@@ -1642,12 +1676,13 @@ async def lockedchallenges(interaction: discord.Interaction, username: str = Non
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def sheepwarskit(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1665,7 +1700,7 @@ async def sheepwarskit(interaction: discord.Interaction, username: str = None):
                 "HEAVY": discord.Color.dark_purple()
             }
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s selected Sheep Wars kit",
                 f"**{name}** has selected the `{kit}` kit as their default kit.",
                 KITCOLORS["kit"],
@@ -1684,12 +1719,13 @@ async def sheepwarskit(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def randomstat(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1708,7 +1744,7 @@ async def randomstat(interaction: discord.Interaction, username: str = None):
                 value = f"{value:,}"
             key = clean_text(key)
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
                 f"{rank} {name}'s {key}",
                 f"**{key}**: `{value}`\n \n*Note: text formating may be messy due to the API being inconsistent.*",
                 discord.Color.random(),
@@ -1782,12 +1818,13 @@ class perfectview(discord.ui.View):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def parkours(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1871,7 +1908,7 @@ async def parkours(interaction: discord.Interaction, username: str = None):
                 missing = "`, `".join(missing)
                 embed.add_field(name="\u200b", value=f"**Warning**: Missing completion for `{missing}`", inline=False)
 
-            await interaction.response.send_message(embed=embed, view=perfectview(uuid, name, rank, color, parkour, parkourCompletions, checkpointBests, AVAILABLE_PARKOURS))
+            await interaction.followup.send(embed=embed, view=perfectview(uuid, name, rank, color, parkour, parkourCompletions, checkpointBests, AVAILABLE_PARKOURS))
         
     #Error
     except Exception as e:
@@ -1885,12 +1922,13 @@ async def parkours(interaction: discord.Interaction, username: str = None):
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
 async def activecollectibles(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
     session = interaction.client.session
     try:
         #Link
         username = await is_linked(username, interaction.user.id)
         if isinstance(username, discord.Embed):
-            await interaction.response.send_message(embed=username)
+            await interaction.followup.send(embed=username)
         else:
             #API
             uuid, name = await get_mojang_api(session, username)
@@ -1906,7 +1944,7 @@ async def activecollectibles(interaction: discord.Interaction, username: str = N
             pet = data["player"].get("currentPet", "None")
             suit = data["player"].get("outfit", {})
 
-            await interaction.response.send_message(embed=set_embed(
+            await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s selected collectibles",
             f"**Favorite Collectibles**:\n▸ `{favoritecollectibles.replace("TAUNT", "GESTURE").replace("OUTFIT", "SUIT").replace("_HELMET", "").replace("_", " ").replace(";", "`, `").title()}`\n**Gadget**: `{gadget.replace("_", " ").title()}`\n\n**Click Effect**: `{clickeffect.replace("_", " ").title()}`\n**Cloak**: `{cloak.replace("_", " ").title()}`\n**Particle Pack**: `{particlepack.replace("_", " ").title()}`\n**Hat**: `{hat.replace("_", " ").title()}`\n**Pet**: `{pet.replace("_", " ").title()}`\n**Suit**:\n ▸ Helmet: `{suit.get("HELMET", "None").replace("_Helmet", "").replace("_", " ").title()}`\n ▸ Chestplate: `{suit.get("CHESTPLATE", "None").replace("_Helmet", "").replace("_", " ").title()}`\n ▸ Leggings: `{suit.get("LEGGINGS", "None").replace("_Helmet", "").replace("_", " ").title()}`\n ▸ Boots: `{suit.get("BOOTS", "None").replace("_Helmet", "").replace("_", " ").title()}`",
             discord.Color.magenta(),
