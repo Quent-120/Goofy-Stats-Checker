@@ -58,6 +58,9 @@ class MyBot(commands.Bot):
         self.tree.add_command(randomstat)
         self.tree.add_command(parkours)
         self.tree.add_command(activecollectibles)
+        self.tree.add_command(fishingratio)
+        self.tree.add_command(cvcshootingrange)
+        self.tree.add_command(bedwars)
 
     async def on_ready(self):
         print(f"Bot logged in as {self.user}.")

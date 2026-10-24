@@ -7,6 +7,7 @@ import re
 import json
 from PIL import Image, ImageDraw, ImageFont
 import io
+import roman
 from utils import *
 
 # =====================================================================
@@ -142,7 +143,7 @@ async def level(interaction: discord.Interaction, username: str = None):
 async def milkshake(interaction: discord.Interaction):
     embed = discord.Embed(
         title="Slumber Hotel Milkshakes",
-        description = "• `Strawberry Milkshake` **2** tickets: jump boost II 60s\n• `Blueberry Milkshake` **1** ticket: slowness II 60s\n• `Apple milkshake` **4** tickets: jump boost II 30s\n• `Banana milkshake` **2** tickets: invisibility II 15s\n• `Mysterious milkshake` **3** tickets: nausea II 5s\n• `Water` **1** ticket: *You now feel very refreshed!*\n• `Rasperry Milkshake` **5** tickets: wither II 15s",
+        description = "• `Strawberry Milkshake` **2** tickets: jump boost II 60s\n• `Blueberry Milkshake` **1** ticket: slowness II 60s\n• `Apple milkshake` **4** tickets: jump boost II 30s\n• `Banana milkshake` **2** tickets: invisibility II 15s\n• `Mysterious milkshake` **3** tickets: nausea II 5s\n• `Water` **1** ticket: *You now feel very refreshed!*\n• `Rasperry Milkshake` **5** tickets: wither II 15s\n▸ **Cooldown**: `60s`",
         color = discord.Color(0xFF69B4),
         timestamp = datetime.now(tz=timezone.utc)
     )
@@ -189,7 +190,7 @@ class yearview(discord.ui.View):
         await interaction.response.edit_message(embed=newembed, view=self)
 
 #Command
-@app_commands.command(name="aprilfool", description="Show stats from both 2026 become rabbit and 2025 become sheep april fools")
+@app_commands.command(name="aprilfool", description="Show stats from both 2026 become rabbit and 2024 become sheep april fools")
 @app_commands.describe(username="In game name of the player")
 @app_commands.choices(year=[
     app_commands.Choice(name="Become Sheep", value="become sheep"),
@@ -1286,11 +1287,17 @@ async def poop(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
     
-            poops = data["player"].get("stats", {}).get("Arcade", {}).get("poop_collected_farm_hunt", 0)
+            poop = data["player"].get("stats", {}).get("Arcade", {}).get("poop_collected_farm_hunt", 0)
+            potato = data["player"].get("stats", {}).get("MainLobby", {}).get("fishing", {}).get("stats", {}).get("permanent", {}).get("individual", {}).get("plant", {}).get("potato", 0)
+
+            description = f"**{name}** has collected `{poop:,}` poops!"
+
+            if poop and potato:
+                description += f"\n▸ *Collected poops per potato caught:* `{round(poop/potato, 2)}`"
 
             await interaction.followup.send(embed=set_embed(
             f"{rank} {name}'s Farm Hunt collected poops",
-            f"**{name}** has collected `{poops:,}` poops!", 
+            description, 
             discord.Color(0x693E13),
             uuid
             ))
@@ -1951,6 +1958,301 @@ async def activecollectibles(interaction: discord.Interaction, username: str = N
             uuid
         ))
         
+    #Error
+    except Exception as e:
+        await handle_error(interaction, e)
+
+# =====================================================================
+# /fishingratio
+# =====================================================================
+
+@app_commands.command(name="fishingratio", description="Show player's fishing stats ratios")
+@app_commands.describe(username="In game name of the player")
+@app_commands.choices(environment=[
+    app_commands.Choice(name="Overall", value="overall"),
+    app_commands.Choice(name="Water", value="water"),
+    app_commands.Choice(name="Lava", value="lava"),
+    app_commands.Choice(name="Ice", value="ice"),
+    ],
+    catch=[
+    app_commands.Choice(name="Fish", value="fish"),
+    app_commands.Choice(name="Treasure", value="treasure"),
+    app_commands.Choice(name="Junk", value="junk"),
+    app_commands.Choice(name="Mythical Fish", value="mythical fish"),
+    app_commands.Choice(name="Plant", value="plant"),
+    app_commands.Choice(name="Creature", value="creature"),
+])
+@app_commands.rename(username="player")
+@app_commands.rename(catch="type")
+async def fishingratio(interaction: discord.Interaction, environment: app_commands.Choice[str], catch: app_commands.Choice[str], username: str = None):
+    await interaction.response.defer()
+    session = interaction.client.session
+    try:
+        #Link
+        username = await is_linked(username, interaction.user.id)
+        if isinstance(username, discord.Embed):
+            await interaction.followup.send(embed=username)
+        else:
+            #API
+            uuid, name = await get_mojang_api(session, username)
+            data = await get_hypixel_api(session, username, uuid)
+            rank = get_rank(data)
+
+            fishing = data["player"].get("stats", {}).get("MainLobby", {}).get("fishing", {}).get("stats", {}).get("permanent", {})
+            mythical = data["player"].get("stats", {}).get("MainLobby", {}).get("fishing", {}).get("orbs", {})
+            enchants = data["player"].get("stats", {}).get("MainLobby", {}).get("fishing", {}).get("enchants", {})
+
+            if environment.value == "overall":
+                water = fishing.get("water", {})
+                lava = fishing.get("lava", {})
+                ice = fishing.get("ice", {})
+
+                total = sum(water.values()) + sum(lava.values()) + sum(ice.values())
+                if catch.value == "mythical fish":
+                    compare = sum(v for v in mythical.values() if isinstance(v, int))
+                else:
+                    compare = water.get(catch.value, 0) + lava.get(catch.value, 0) + ice.get(catch.value, 0)
+            else:
+                if catch.value == "mythical fish":
+                    await interaction.followup.send(embed=error_embed("Cannot track mythical fish's environment."))
+                    return
+                total = sum(fishing.get(environment.value, {}).values())
+                compare = fishing.get(environment.value, {}).get(catch.value, 0)
+
+            if total == 0 or compare == 0:
+                result = 0
+                odds = 0
+            else:
+                result = round(total/compare, 2)
+                odds = round((compare/total)*100, 2)
+            catchname = catch.name.lower()
+            if environment.name == "Overall":
+                environmentname = ""
+            else:
+                environmentname = environment.name.lower() + " "
+
+            embed=set_embed(
+                f"{rank} {name}'s {catchname} per {environmentname}catch ratio",
+                f"**{name}** gets a **{catchname}** in average every `{result:,}` {environmentname} catches. `{odds}%`",
+                discord.Color.blue(),
+                uuid
+            )
+
+            # Enchants
+            enchantments = ""
+            for name, settings in enchants.items():
+                if settings.get("toggle", False):
+                    if settings.get("level"):
+                        level = roman.toRoman(settings.get("level"))
+                    else:
+                        level = "I"
+                    enchantments += f"\n\u200b • **{name.replace("_", " ").replace("luck", "luck of the sea").title()}** {level}"
+            if enchantments:
+                embed.add_field(name = "Selected Enchantments", value = enchantments, inline = False)
+                    
+            await interaction.followup.send(embed=embed)
+                
+    #Error
+    except Exception as e:
+        await handle_error(interaction, e)
+
+# =====================================================================
+# /cvcshootingrange
+# =====================================================================
+
+@app_commands.command(name="cvcshootingrange", description="Show player's shooting range kills from the Cops and Crims lobby")
+@app_commands.describe(username="In game name of the player")
+@app_commands.rename(username="player")
+async def cvcshootingrange(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
+    session = interaction.client.session
+    try:
+        #Link
+        username = await is_linked(username, interaction.user.id)
+        if isinstance(username, discord.Embed):
+            await interaction.followup.send(embed=username)
+        else:
+            #API
+            uuid, name = await get_mojang_api(session, username)
+            data = await get_hypixel_api(session, username, uuid)
+            rank = get_rank(data)
+
+            kills = data["player"].get("achievements", {}).get("copsandcrims_practice_makes_perfect", 0)
+
+            await interaction.followup.send(embed=set_embed(
+                f"{rank} {name}'s shooting range kills",
+                f"**{name}** killed `{kills:,}` mobs in the Shooting Range from the Cops and Crims lobby.",
+                discord.Color.dark_grey(),
+                uuid
+            ))
+                
+    #Error
+    except Exception as e:
+        await handle_error(interaction, e)
+
+# =====================================================================
+# /bedwars
+# =====================================================================
+
+#List
+class modeview(discord.ui.View):
+    def __init__(self, uuid, name, rank, bw_level, stats):
+        super().__init__(timeout=120)
+        self.uuid = uuid
+        self.name = name
+        self.rank = rank
+        self.bw_level = bw_level
+        self.stats = stats
+
+        self.select = discord.ui.Select(
+            options = [
+                discord.SelectOption(label=mode, default=(mode == "Overall"))
+                for mode in (MODES | DREAMS).values()
+            ]
+        )
+        self.select.callback = self.switchmode
+        self.add_item(self.select)
+    
+    async def switchmode(self, interaction: discord.Interaction):
+        mode = self.select.values[0]
+
+        for opt in self.select.options:
+            opt.default = (opt.label == mode)
+
+        newembed = set_embed(
+            f"{self.bw_level} {self.rank} {self.name}'s {mode} Bed Wars stats",
+            "",
+            discord.Color.red(),
+            self.uuid
+        )
+
+        i = 0
+        for type in TYPES:
+            i += 1
+            total = self.stats.get(mode, {}).get(type, {}).get("total", 0)
+            causes = self.stats.get(mode, {}).get(type, {}).get("causes", {})
+            causesshown = ""
+            for k, v in causes.items():
+                percent = round((v / total)*100, 2)
+                causesshown += f"▸ {k.replace("_", " ").title()}: `{v:,}` *{percent}%*\n"
+            newembed.add_field(name=f"{type.replace("_", " ").title()}", value=f"__Total__: {total:,}\n{causesshown}", inline=True)
+            if i % 2 == 0:
+                newembed.add_field(name="", value="", inline=True)
+        
+        await interaction.response.edit_message(embed=newembed, view=self)
+
+# Command
+@app_commands.command(name="bedwars", description="Show player's Bed Wars stats and detailed causes")
+@app_commands.describe(username="In game name of the player")
+@app_commands.rename(username="player")
+async def bedwars(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
+    session = interaction.client.session
+    try:
+        #Link
+        username = await is_linked(username, interaction.user.id)
+        if isinstance(username, discord.Embed):
+            await interaction.followup.send(embed=username)
+        else:
+            #API
+            uuid, name = await get_mojang_api(session, username)
+            data = await get_hypixel_api(session, username, uuid)
+            rank = get_rank(data)
+
+
+
+            KEYTYPES = ["final_kills", "final_deaths", "kills", "deaths"]
+
+            bedwars = data["player"].get("stats", {}).get("Bedwars", {})
+
+            def get_type(key: str):
+                for t in KEYTYPES:
+                    if key == t or key.endswith("_" + t):
+                        return t
+                return None
+
+            def get_mode(key: str):
+                for t in MODES.keys():
+                    if t == key or key.startswith(t + "_"):
+                        return t
+                return None
+
+            if bedwars.get("games_played_bedwars_1", 0):
+                bw_level = get_bedwars_level(data)
+
+                stats = {}
+                for key, value in bedwars.items():
+                    result = key.removesuffix("_bedwars").replace("tourney_bedwars4s_", "tourney_bedwars_four_four_")
+                    stattype = get_type(result)
+                    if stattype:
+                        result = result.removesuffix(stattype).removesuffix("_")
+                        mode = get_mode(result)
+                        cause = result.removeprefix(mode).removeprefix("_") if mode else result
+                        dreammode = cause.split("_")[0]
+
+                        if mode == "tourney_bedwars":
+                            submode = cause.removeprefix(get_mode(cause) + "_")
+                            cause =  submode[2:]
+                            tournament = stats.setdefault("Tourneys", {}).setdefault(stattype, {"total": 0, "causes": {}})
+                            if cause:
+                                tournament["causes"][cause] = tournament["causes"].get(cause, 0) + value
+                            else:
+                                tournament["total"] += value
+                        
+                        elif dreammode in DREAMS:
+                            cause = cause.removeprefix(dreammode).removeprefix("_")
+                            dream = stats.setdefault(DREAMS[dreammode], {}).setdefault(stattype, {"total": 0, "causes": {}})
+                            if cause:
+                                dream["causes"][cause] = dream["causes"].get(cause, 0) + value
+                            else:
+                                dream["total"] += value
+
+                        elif mode:
+                            gamemode = stats.setdefault(MODES[mode], {}).setdefault(stattype, {"total": 0, "causes": {}})
+                            if cause:
+                                gamemode["causes"][cause] = value
+                            else:
+                                gamemode["total"] = value
+
+                        else:
+                            overall = stats.setdefault("Overall", {}).setdefault(stattype, {"total": 0, "causes": {}})
+                            if cause:
+                                overall["causes"][cause] = value
+                            else:
+                                overall["total"] = value
+
+                embed=set_embed(
+                    f"{bw_level} {rank} {name}'s Overall Bed Wars stats",
+                    "",
+                    discord.Color.red(),
+                    uuid
+                )
+
+                i = 0
+                for type in TYPES:
+                    i += 1
+                    total = stats.get("Overall", {}).get(type, {}).get("total", 0)
+                    causes = stats.get("Overall", {}).get(type, {}).get("causes", {})
+                    causesshown = ""
+                    for k, v in causes.items():
+                        percent = round((v / total)*100, 2)
+                        causesshown += f"▸ {k.replace("_", " ").title()}: `{v:,}` *{percent}%*\n"
+                    embed.add_field(name=f"{type.replace("_", " ").title()}", value=f"__Total__: {total:,}\n{causesshown}", inline= True)
+                    if i % 2 == 0:
+                        embed.add_field(name="", value="", inline=True)
+
+                await interaction.followup.send(embed=embed, view=modeview(uuid, name, rank, bw_level, stats))
+
+            else:
+                await interaction.followup.send(embed=set_embed(
+                    f"{rank} {name}'s Bed Wars stats",
+                    f"**{name}** never played Bed Wars.",
+                    discord.Color.red(),
+                    uuid
+                ))
+
+            
+                            
     #Error
     except Exception as e:
         await handle_error(interaction, e)

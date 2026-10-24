@@ -5,6 +5,7 @@ import json
 import re
 import os
 import time
+import traceback
 from datetime import datetime, timezone
 from discord.ext import tasks
 from config import HYPIXEL_API_KEY
@@ -106,6 +107,31 @@ BEDWARSCHALLENGES = {
     "bw_challenge_halved_and_doubled": "Halved & Doubled"
 }
 
+TYPES = ["kills", "final_kills", "deaths", "final_deaths"]
+    
+MODES = {
+    "overall": "Overall",
+    "eight_one": "Solo",
+    "eight_two": "Doubles",
+    "four_three": "3v3v3v3",
+    "four_four": "4v4v4v4",
+    "two_four": "4v4",
+    "tourney_bedwars": "Tourneys"
+}
+
+DREAMS = {
+    "rush": "Rush",
+    "ultimate": "Ultimate",
+    "lucky": "Lucky V2",
+    "voidless": "Voidless",
+    "armed": "Armed",
+    "swap": "Swappage",
+    "castle": "Castle",
+    "oneblock": "One Block",
+    "underworld": "Underworld",
+    "totallynormal": "Totally Normal",
+}
+
 def get_mm_prefixstat(data):
     prefixstat = data["player"].get("stats", {}).get("MurderMystery", {})
     MURDERMYSTERYPREFIXSTAT = {
@@ -190,9 +216,9 @@ async def get_hypixel_api(session, username, uuid):
                 print(f"Error {response.status}\nRatelimit: {response.headers.get("RateLimit-Remaining")}/{response.headers.get("RateLimit-Reset")}", await response.text())
                 raise ValueError(f"Error {response.status}. Something went wrong with Hypixel's API.")
             data = await response.json()
-            if data["player"] is None:
-                raise ValueError(f"`{username}` never logged into Hypixel.")
         await asyncio.to_thread(write_cache, f"cache/{uuid}.json", data)
+    if not data.get("player"):
+        raise ValueError(f"`{username}` never logged into Hypixel.")
     return data
 
 async def is_linked(username, discordid):
@@ -240,7 +266,7 @@ def formatted_time(time):
     return time
 
 async def handle_error(interaction, error):
-    # traceback.print_exception(error)
+    traceback.print_exception(error)
     if isinstance(error, ValueError):
         description = str(error)
     elif isinstance(error, aiohttp.ContentTypeError):
