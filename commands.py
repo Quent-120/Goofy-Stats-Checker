@@ -380,8 +380,6 @@ async def rankcolor(interaction: discord.Interaction, username: str = None):
 # /gamblergeorge
 # =====================================================================
 
-# OUTDATED DUE TO LATEST UPDATED, WILL UPDATE SOON
-'''
 @app_commands.command(name="gamblergeorge", description="Show player's Gambler George quest status")
 @app_commands.describe(username="In game name of the player")
 @app_commands.rename(username="player")
@@ -407,26 +405,27 @@ async def gamblergeorge(interaction: discord.Interaction, username: str = None):
                 color = discord.Color.red()
             else:
                 gamblergeorge = data["player"].get("stats", {}).get("Bedwars", {}).get("slumber", {}).get("quest", {}).get("gambler_george", {})
-                lostbettime = gamblergeorge.get("lost_bet_time", 0)//1000
-                lastlose = int(time.time()) - lostbettime
-                if  lastlose < 86400:
-                    lastlose = 86400 - lastlose
-                    h = lastlose // 3600
-                    m = (lastlose % 3600) // 60
-                    s = lastlose % 60
-                    description = f"{bw_level} {name} **lost** their bet, available again in `{h:,}`h `{m}`m `{s}`s."
+                wincooldown = gamblergeorge.get("bet_cooldown_time", 0)//1000
+                lastwin = int(time.time()) - wincooldown
+                if  lastwin < 86400:
+                    lastwin = 86400 - lastwin
+                    h = lastwin // 3600
+                    m = (lastwin % 3600) // 60
+                    s = lastwin % 60
+                    description = f"{bw_level} {name} **won** their bet, available again in `{h:,}`h `{m}`m `{s}`s."
                     color = discord.Color.red()
                 else:
-                    notinprogress = gamblergeorge.get("lost_bet", "false") == "true"
-                    betamount = gamblergeorge.get("bet_amout", 0)
-                    if not notinprogress and not betamount:
-                        description = f"{bw_level} {name}'s Gambler George quest is currently **available**."
-                    else:
+                    inprogress = gamblergeorge.get("bet_amount", 0)
+                    didntlose = gamblergeorge.get("won_last_game", True)
+                    if inprogress and didntlose:
                         wins = gamblergeorge.get("gamble_games_won", 0)
                         if wins < 2:
-                            description = f"Quest **in progress**, {bw_level} {name} won `{wins:,}`/`2` game(s) so far."
+                            description = f"Quest **in progress**: {bw_level} {name} has won `{wins}/2` game(s) so far."
                         else:
-                            description = f"Quest **in progress**, {bw_level} {name} won `{wins:,}`/`2` games so far.\n*▸ Note that wins past 2 do not reset on loss.*"
+                            description = f"Quest **in progress**: {bw_level} {name} won `{wins:,}`/`2` games so far and should claim their reward.\n*▸ Note that wins past 2 do not reset on loss.*"
+                    else:
+                        description = f"{bw_level} {name}'s Gambler George quest is currently **available**."
+                        
                     color = discord.Color.green()
 
             await interaction.followup.send(embed=set_embed(
@@ -439,7 +438,7 @@ async def gamblergeorge(interaction: discord.Interaction, username: str = None):
     #Error
     except Exception as e:
         await handle_error(interaction, e)
-'''
+
 
 # =====================================================================
 # /housingadvanced
@@ -1642,7 +1641,11 @@ async def lockedchallenges(interaction: discord.Interaction, username: str = Non
                 if elt.startswith("bw_challenge_") and elt+"_collected" not in packages:
                     lockedchallenges.append(elt)
 
-            if lockedchallenges == []:
+            selectedchallenge = bedwars.get("selected_challenge_type", "NONE").lower()
+            if selectedchallenge != "none":
+                selectedchallenge = BEDWARSCHALLENGES["bw_challenge_" + selectedchallenge]
+
+            if not lockedchallenges:
                 bw_level = get_bedwars_level(data)
                 embed = set_embed(
                     f"{rank} {name}'s locked Bed Wars challenges completions",
@@ -1650,6 +1653,7 @@ async def lockedchallenges(interaction: discord.Interaction, username: str = Non
                     discord.Color.red(),
                     uuid
                 )
+
             else:
                 embed=set_embed(
                     f"{rank} {name}'s locked challenges completions",
@@ -1658,16 +1662,19 @@ async def lockedchallenges(interaction: discord.Interaction, username: str = Non
                     uuid
                 )
 
-                for elt in lockedchallenges:
-                    title = BEDWARSCHALLENGES[elt]
-                    wins = bedwars[elt]
+                for challenge in lockedchallenges:
+                    title = BEDWARSCHALLENGES[challenge]
+                    wins = bedwars[challenge]
 
-                    besttime = bedwars.get("challenges", {}).get(elt+"_best_time")//1000
+                    besttime = bedwars.get("challenges", {}).get(challenge+"_best_time")//1000
                     h = besttime // 3600
                     m = (besttime % 3600) // 60
                     s = besttime % 60
 
                     embed.add_field(name=f"{title}", value=f"Wins with Challenge: `{wins:,}`\nFastest Completion: `{h:02}:{m:02}:{s:02}`", inline = True)
+
+            if selectedchallenge != "none":
+                embed.add_field(name=f"{"Active Challenge"}", value=f"**{name}** has curently selected the `{selectedchallenge}` challenge.", inline = False)
 
             await interaction.followup.send(embed=embed)
 
@@ -1906,7 +1913,8 @@ async def parkours(interaction: discord.Interaction, username: str = None):
                             sumofbest += parkour[lobby]["Checkpoints"][cp]
                 else:
                     checkpoints = "\u200b `N/A`"
-                if parkour[lobby]["Best Time"] == "`N/A`":
+
+                if parkour[lobby]["Best Time"] == "`N/A`" or checkpoints == "\u200b `N/A`" or parkour[lobby]["Best Time"] < sumofbest:
                     embed.add_field(name=lobby, value=f"▸ {formatted_time(parkour[lobby]["Best Time"])}\n__Best Checkpoints__\n{checkpoints}", inline = True)
                 else:
                     embed.add_field(name=lobby, value=f"▸ {formatted_time(parkour[lobby]["Best Time"])}\n__Sum of Best__\n▸ {formatted_time(sumofbest)}\n__Best Checkpoints__\n{checkpoints}", inline = True)
@@ -2008,13 +2016,18 @@ async def fishingratio(interaction: discord.Interaction, environment: app_comman
                 ice = fishing.get("ice", {})
 
                 total = sum(water.values()) + sum(lava.values()) + sum(ice.values())
+                mythicalfish = ""
                 if catch.value == "mythical fish":
                     compare = sum(v for v in mythical.values() if isinstance(v, int))
+                    for fish, amount in mythical.items():
+                        if isinstance(amount, int):
+                            mythicalodds = round((amount/total)*100, 5)
+                            mythicalfish += f"\n\u200b • **{MYTHICALFISHES[fish]}**: {amount} `{mythicalodds}%`"
                 else:
                     compare = water.get(catch.value, 0) + lava.get(catch.value, 0) + ice.get(catch.value, 0)
             else:
                 if catch.value == "mythical fish":
-                    await interaction.followup.send(embed=error_embed("Cannot track mythical fish's environment."))
+                    await interaction.followup.send(embed=error_embed("Cannot track mythical fishes's environment."))
                     return
                 total = sum(fishing.get(environment.value, {}).values())
                 compare = fishing.get(environment.value, {}).get(catch.value, 0)
@@ -2026,6 +2039,7 @@ async def fishingratio(interaction: discord.Interaction, environment: app_comman
                 result = round(total/compare, 2)
                 odds = round((compare/total)*100, 2)
             catchname = catch.name.lower()
+
             if environment.name == "Overall":
                 environmentname = ""
             else:
@@ -2033,7 +2047,7 @@ async def fishingratio(interaction: discord.Interaction, environment: app_comman
 
             embed=set_embed(
                 f"{rank} {name}'s {catchname} per {environmentname}catch ratio",
-                f"**{name}** gets a **{catchname}** in average every `{result:,}` {environmentname} catches. `{odds}%`",
+                f"**{name}** gets a **{catchname}** in average every `{result:,}` {environmentname} catches. `{odds}%`{mythicalfish}",
                 discord.Color.blue(),
                 uuid
             )
@@ -2159,8 +2173,6 @@ async def bedwars(interaction: discord.Interaction, username: str = None):
             data = await get_hypixel_api(session, username, uuid)
             rank = get_rank(data)
 
-
-
             KEYTYPES = ["final_kills", "final_deaths", "kills", "deaths"]
 
             bedwars = data["player"].get("stats", {}).get("Bedwars", {})
@@ -2246,12 +2258,132 @@ async def bedwars(interaction: discord.Interaction, username: str = None):
             else:
                 await interaction.followup.send(embed=set_embed(
                     f"{rank} {name}'s Bed Wars stats",
-                    f"**{name}** never played Bed Wars.",
+                    f"**{name}** has never played Bed Wars.",
                     discord.Color.red(),
                     uuid
                 ))
 
             
+                            
+    #Error
+    except Exception as e:
+        await handle_error(interaction, e)
+
+
+# =====================================================================
+# /cosmetics
+# =====================================================================
+
+@app_commands.command(name="cosmetics", description="Show player's total cosmetics unlocked accross all gamemodes")
+@app_commands.describe(username="In game name of the player")
+@app_commands.rename(username="player")
+async def cosmetics(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
+    session = interaction.client.session
+    try:
+        #Link
+        username = await is_linked(username, interaction.user.id)
+        if isinstance(username, discord.Embed):
+            await interaction.followup.send(embed=username)
+        else:
+            #API
+            uuid, name = await get_mojang_api(session, username)
+            data = await get_hypixel_api(session, username, uuid)
+            rank = get_rank(data)
+
+            cosmetics = []
+            def findpath(obj, total):
+                if isinstance(obj, dict):
+                    if "packages" in obj:
+                        total.extend(obj["packages"])
+                    for k, v in obj.items():
+                        findpath(v, total)
+                elif isinstance(obj, list):
+                    for i, v in enumerate(obj):
+                        findpath(v, total)
+                return total
+
+            findpath(data, cosmetics)
+            total = len(cosmetics) if cosmetics else 0
+
+            await interaction.followup.send(embed=set_embed(
+                f"{rank} {name}'s total cosmetics",
+                f"**{name}** has unlocked `{total}` cosmetics accross all Hypixel minigames.\n\n*Note: this number is actually a bit higher than it should be due to the API also including some technical stuff*",
+                discord.Color.dark_green(),
+                uuid
+            ))
+                            
+    #Error
+    except Exception as e:
+        await handle_error(interaction, e)
+
+# =====================================================================
+# /damagecauses
+# =====================================================================
+
+@app_commands.command(name="damagecauses", description="List of all damage causes tracked by Hypixel and wether or not the player triggered them in Bed Wars")
+@app_commands.describe(username="In game name of the player")
+@app_commands.rename(username="player")
+async def damagecauses(interaction: discord.Interaction, username: str = None):
+    await interaction.response.defer()
+    session = interaction.client.session
+    try:
+        #Link
+        username = await is_linked(username, interaction.user.id)
+        if isinstance(username, discord.Embed):
+            await interaction.followup.send(embed=username)
+        else:
+            #API
+            uuid, name = await get_mojang_api(session, username)
+            data = await get_hypixel_api(session, username, uuid)
+            rank = get_rank(data)
+
+            bedwars = data["player"].get("stats", {}).get("Bedwars", {})
+
+            DAMAGECAUSES = [
+                "entity_attack",
+                "entity_explosion",
+                "void",
+                "fall",
+                "projectile",
+                "magic",
+                "fire",
+                "fire_tick",
+                "lava",
+                "suffocation",
+                "drowning",
+                "contact",
+                "wither",
+                "lightning",
+                "falling_block",
+                "thorns",
+                "block_explosion",
+                "poison",
+                "starvation",
+                "suicide",
+                "custom"
+            ]
+
+            def get_cause(cause):
+                for key in bedwars:
+                    if isinstance(key, str):
+                        if cause in key:
+                            return "✓"
+                return "✖"
+
+            bw_level = get_bedwars_level(data)
+
+            total = 0
+            for cause in DAMAGECAUSES:
+                if get_cause(cause) == "✓":
+                    total += 1
+
+            await interaction.followup.send(embed=set_embed(
+                f"Hypixel tracked damage causes list",
+                f"{bw_level} {rank} {name} triggered `{total}/{len(DAMAGECAUSES)}` damage causes.\n\n[{get_cause("entity_attack")}] `Entity Attack` Taking melee hits from an entity\n[{get_cause("entity_explosion")}] `Entity Explosion` Being hit by an explosion from an entity\n[{get_cause("void")}] `Void` Falling below Y -64\n[{get_cause("fall")}] `Fall` Falling from over 3 blocks and ender pearl landing\n[{get_cause("projectile")}] `Projectile` Being hit by a projectile\n[{get_cause("magic")}] `Magic` Player leaves the game\n[{get_cause("fire")}] `Fire` Standing in a fire block\n[{get_cause("fire_tick")}] `Fire Tick` Burning after being set on fire\n[{get_cause("lava")}] `Lava` Touching lava\n[{get_cause("suffocation")}] `Suffocation` Being inside a solid block\n[{get_cause("drowning")}] `Drowning` Running out of air underwater\n[{get_cause("contact")}] `Contact` Touching a cactus block\n[{get_cause("wither")}] `Wither` Wither effect ticks\n[{get_cause("lightning")}] `Lightning` Getting struck by lightning\n[{get_cause("falling_block")}] `Falling Block` Anvil landing\n[{get_cause("thorns")}] `Thorns` Hitting an entity with the thorns effect\n[{get_cause("block_explosion")}] `Block Explosion` Bed/End Crystal explosion\n[{get_cause("poison")}] `Poison` Poison effect ticks\n[{get_cause("starvation")}] `Starvation` Running out of hunger\n[{get_cause("suicide")}] `Suicide` /kill command\n[{get_cause("custom")}] `Custom` Plugin-created damage events\n\n*Tips: Use /bedwars to check stats for each cause in any gamemode*",
+                discord.Color.dark_green(),
+                uuid
+            ))
                             
     #Error
     except Exception as e:

@@ -132,6 +132,17 @@ DREAMS = {
     "totallynormal": "Totally Normal",
 }
 
+MYTHICALFISHES = {
+    "helios": "Ember of Helios",
+    "selene": "Dust of Selene",
+    "nyx": "Shadow of Nyx",
+    "aphrodite": "Heart of Aphrodite",
+    "zeus": "Spark of Zeus",
+    "demeter": "Spirit of Demeter",
+    "archimedes": "Automaton of Daedalus",
+    "hades": "Wrath of Hades"
+}
+
 def get_mm_prefixstat(data):
     prefixstat = data["player"].get("stats", {}).get("MurderMystery", {})
     MURDERMYSTERYPREFIXSTAT = {

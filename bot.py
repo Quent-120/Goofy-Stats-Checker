@@ -28,7 +28,7 @@ class MyBot(commands.Bot):
         self.tree.add_command(quickbuyprivacy)
         self.tree.add_command(sledtype)
         self.tree.add_command(rankcolor)
-#       self.tree.add_command(gamblergeorge) outdated, will update soon
+        self.tree.add_command(gamblergeorge)
         self.tree.add_command(housingadvanced)
         self.tree.add_command(paidsouls)
         self.tree.add_command(ultimate)
@@ -61,6 +61,8 @@ class MyBot(commands.Bot):
         self.tree.add_command(fishingratio)
         self.tree.add_command(cvcshootingrange)
         self.tree.add_command(bedwars)
+        self.tree.add_command(cosmetics)
+        self.tree.add_command(damagecauses)
 
     async def on_ready(self):
         print(f"Bot logged in as {self.user}.")
