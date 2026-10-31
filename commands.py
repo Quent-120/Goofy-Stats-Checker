@@ -1846,24 +1846,24 @@ async def parkours(interaction: discord.Interaction, username: str = None):
             rank = get_rank(data)
 
             AVAILABLE_PARKOURS = {
-                "Housing": "Housing",
                 "ArcadeGames2": "Arcade",
-                "CopsnCrims2024": "Cops and Crims",
-                "SkywarsStandard2022": "SkyWars",
                 "BedwarsSpring2023": "Bed Wars",
-                "SuperSmash": "Smash Heroes",
-                "tntLobby2024": "TNT Games",
-                "WoolGames": "Wool Games",
+                "BlitzLobby": "Blitz SG",
+                "BuildBattle": "Build Battle",
+                "Legacy": "Classic Games",
+                "CopsnCrims2024": "Cops and Crims",
+                "Duels": "Duels",
+                "Housing": "Housing",
                 "mainLobby2022": "Main Lobby",
                 "MegaWalls": "Mega Walls",
-                "Duels": "Duels",
-                "BuildBattle": "Build Battle",
-                "uhc": "UHC",
                 "MurderMystery": "Murder Mystery",
                 "Prototype2025": "Prototype",
+                "SkywarsStandard2022": "SkyWars",
+                "SuperSmash": "Smash Heroes",
+                "tntLobby2024": "TNT Games",
+                "uhc": "UHC",
                 "Warlords": "Warlords",
-                "Legacy": "Classic Games",
-                "BlitzLobby": "Blitz SG"
+                "WoolGames": "Wool Games",
             }
 
             parkourCompletions = data["player"].get("parkourCompletions", {})
@@ -1878,6 +1878,11 @@ async def parkours(interaction: discord.Interaction, username: str = None):
                         }
                     })
 
+            def sort(item):
+                t = item[1]["Best Time"]
+                return (0, t) if isinstance(t, int) else (1, 0)
+            parkour = dict(sorted(parkour.items(), key=sort))
+
             total = 0
             missing = []
             for lobby in parkour:
@@ -1885,7 +1890,6 @@ async def parkours(interaction: discord.Interaction, username: str = None):
                     missing.append(lobby)
                 else:
                     total += parkour[lobby]["Best Time"]
-
 
             if len(missing) == len(parkour):
                 description = f"**{name}** hasn't completed any parkour."
